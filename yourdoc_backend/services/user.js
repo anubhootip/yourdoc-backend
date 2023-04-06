@@ -30,6 +30,20 @@ async function getById(userId) {
   }
 }
 
+async function getByIdNType(userId, type) {
+  const userTypeQueryMap = {
+    "patient": `select * from user u, patient p where u.id=p.user_id and u.id='${userId}'`,
+    "doctor": `select * from user u, doctor d where u.id=d.user_id and u.id='${userId}'`,
+    "admin": `select * from user where u.id='${userId}'`,
+  }
+  const rows = await db.query(userTypeQueryMap[type.toLowerCase()]);
+  const [data] = helper.emptyOrRows(rows);
+
+  return {
+    data
+  }
+}
+
 async function create(user) {
   const { email, password, name, type, phone, dob, gender, address, latlong, avatar_url } = user;
   const id = uuid();
@@ -54,5 +68,6 @@ async function create(user) {
 module.exports = {
   getById,
   getMultiple,
+  getByIdNType,
   create
 }

@@ -21,7 +21,7 @@ async function getMultiple(page = 1) {
 async function getById(doctorId) {
   const rows = await db.query(
     `SELECT name, specialization
-    FROM doctor,user where id=${doctorId}`
+    FROM doctor,user where id='${doctorId}'`
   );
   const [data] = helper.emptyOrRows(rows);
 

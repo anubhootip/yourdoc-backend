@@ -11,6 +11,16 @@ router.get('/', async function (req, res, next) {
   }
 });
 
+router.get('/bytype', async function (req, res, next) {
+  const { type, userId } = req.query;
+  try {
+    res.json(await user.getByIdNType(userId, type));
+  } catch (err) {
+    console.error(`Error while getting user `, err.message);
+    next(err);
+  }
+});
+
 router.get('/:id', async function (req, res, next) {
   try {
     res.json(await user.getById(req.params.id));
@@ -19,6 +29,8 @@ router.get('/:id', async function (req, res, next) {
     next(err);
   }
 });
+
+
 
 router.post('/', async function (req, res, next) {
   try {

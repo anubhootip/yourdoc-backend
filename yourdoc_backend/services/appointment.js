@@ -6,29 +6,26 @@ const { v4: uuid } = require('uuid');
 async function getByDoctorId(doctorId, page = 1) {
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
-    `SELECT name, specialization, datetime, description
-      FROM appointment a, user u 
-      WHERE a.doctor_id = u.id and u.id = '${doctorId}'
+    `SELECT specialization, datetime appointmentDateTime, description, name FROM
+      appointment a, doctor d, user u
+      WHERE a.doctor_id = d.user_id and d.user_id = '${doctorId}' and u.id=d.user_id
       LIMIT ${offset},${config.listPerPage}
     `
   );
   const data = helper.emptyOrRows(rows);
   const meta = { page };
 
-  return {
-    data,
-    meta
-  }
+  return { data, meta }
 }
 
 async function getByPatientId(patientId, page = 1) {
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
-    `SELECT name, doctor_id, datetime, description
+    `SELECT name, doctor_id, datetime, description, specialization
     FROM (SELECT datetime, description, doctor_id
       FROM appointment a, user u
-      WHERE a.patient_id = u.id and u.id = '${patientId}') pAppoint, user uu
-    WHERE uu.id = pAppoint.doctor_id
+      WHERE a.patient_id = u.id and u.id = '${patientId}') pAppoint, user uu, doctor d
+    WHERE uu.id = pAppoint.doctor_id and d.user_id=uu.id
     ORDER BY datetime
     LIMIT ${offset},${config.listPerPage}
     `
@@ -36,10 +33,7 @@ async function getByPatientId(patientId, page = 1) {
   const data = helper.emptyOrRows(rows);
   const meta = { page };
 
-  return {
-    data,
-    meta
-  }
+  return { data, meta }
 }
 
 async function create(appointment) {
