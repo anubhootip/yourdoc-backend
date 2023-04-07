@@ -112,3 +112,20 @@ describe('searchDocBySpec', () => {
     );
   });
 });
+
+describe('searchDocByPinCode', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('It will return an object with return key', async () => {
+    db.query = jest.fn(() => Promise.resolve([]));
+    const pinCode = '123456';
+
+    const response = await searchPinCode(pinCode);
+
+    expect(response).toEqual(expect.objectContaining({
+      result: expect.any(Array)
+    }));
+  });
+});
