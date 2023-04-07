@@ -57,4 +57,13 @@ describe("search", () => {
     );
     expect(result).toEqual(expectedResult);
   });
+
+  test('It will throw an error if database query fails', async () => {
+    const q = 'cardiology';
+
+    const querySpy = jest.spyOn(db, 'query').mockRejectedValue(new Error('Query failed'));
+
+    await expect(search(q)).rejects.toThrowError('Query failed');
+    expect(querySpy).toHaveBeenCalledWith("SELECT * FROM doctor,user WHERE id=user_id AND is_approved = 1 AND (specialization like 'cardiology%' OR name like 'cardiology%' OR email like 'cardiology%' OR address like '%cardiology%' )");
+  });
 });
