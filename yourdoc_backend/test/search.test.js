@@ -99,4 +99,16 @@ describe('searchDocBySpec', () => {
     );
     expect(result).toEqual({ result: { data: { rows: [] } } });
   });
+
+  test('throws an error if database query fails', async () => {
+    const mockError = new Error('Database query error');
+    db.query.mockRejectedValue(mockError);
+
+    await expect(getDocSpec('cardiology')).rejects.toThrow(mockError);
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+        `SELECT * FROM doctor WHERE specialization = 'cardiology' and is_approved = 1`
+    );
+  });
 });
