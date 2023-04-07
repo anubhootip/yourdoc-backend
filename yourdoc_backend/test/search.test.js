@@ -138,4 +138,17 @@ describe('searchDocByPinCode', () => {
 
     expect(mockDbQuery).toHaveBeenCalledWith(`SELECT * FROM doctor INNER JOIN user ON address = '${pinCode}' and is_approved = 1;`);
   });
+
+  test('It should return data from db.query', async () => {
+    // Arrange
+    const mockData = [{ id: 1, name: 'Dr. John Doe' }];
+    db.query = jest.fn(() => Promise.resolve(mockData));
+    const pinCode = '123456';
+
+    // Act
+    const response = await searchPinCode(pinCode);
+
+    // Assert
+    expect(response.result).toEqual(mockData);
+  });
 });
