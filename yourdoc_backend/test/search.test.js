@@ -37,4 +37,24 @@ describe("search", () => {
     );
     expect(result).toEqual(expectedResult);
   });
+
+  test("It will return empty list if unknown query entered", async () => {
+    const q = "foobar";
+    const expectedResult = {
+      data: {
+        rows: [],
+      },
+    };
+
+    const mockResult = { rows: [] };
+    const querySpy = jest.spyOn(db, "query").mockResolvedValue(mockResult);
+
+    const result = await search(q);
+
+    expect(querySpy).toHaveBeenCalledTimes(1);
+    expect(querySpy).toHaveBeenCalledWith(
+      "SELECT * FROM doctor,user WHERE id=user_id AND is_approved = 1 AND (specialization like 'foobar%' OR name like 'foobar%' OR email like 'foobar%' OR address like '%foobar%' )"
+    );
+    expect(result).toEqual(expectedResult);
+  });
 });
