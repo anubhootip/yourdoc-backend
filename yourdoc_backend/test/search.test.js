@@ -84,4 +84,19 @@ describe('searchDocBySpec', () => {
     const result = await getDocSpec('cardiology');
     expect(result).toEqual({result: {rows: mockResult.rows}});
   });
+
+  test('returns empty list for unknown specialization', async () => {
+    const mockResult = {
+      data: { rows: [],},
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
+
+    const result = await getDocSpec('unknown');
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+        `SELECT * FROM doctor WHERE specialization = 'unknown' and is_approved = 1`
+    );
+    expect(result).toEqual({ result: { data: { rows: [] } } });
+  });
 });
