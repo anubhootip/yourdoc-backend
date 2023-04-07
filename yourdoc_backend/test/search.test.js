@@ -67,3 +67,21 @@ describe("search", () => {
     expect(querySpy).toHaveBeenCalledWith("SELECT * FROM doctor,user WHERE id=user_id AND is_approved = 1 AND (specialization like 'cardiology%' OR name like 'cardiology%' OR email like 'cardiology%' OR address like '%cardiology%' )");
   });
 });
+
+describe('searchDocBySpec', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('returns doctors with matching specialization', async () => {
+    const mockResult = {
+      rows: [
+        {id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true},
+        {id: 2, name: 'Dr. Jane Smith', specialization: 'cardiology', is_approved: true},
+      ],
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
+    const result = await getDocSpec('cardiology');
+    expect(result).toEqual({result: {rows: mockResult.rows}});
+  });
+});
