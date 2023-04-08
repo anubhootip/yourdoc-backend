@@ -152,3 +152,23 @@ describe('searchDocByPinCode', () => {
     expect(response.result).toEqual(mockData);
   });
 });
+
+describe("searchDocByName", () => {
+
+  test('returns empty list for unknown doctor name', async () => {
+    const mockResult = {
+      rows: {
+        data: [],
+      },
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
+
+    const result = await searchName('unknown');
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+        `SELECT * FROM user,doctor WHERE id=user_id and name like 'unknown' and is_approved = 1`
+    );
+    expect(result).toEqual({ rows: { rows: { data: [] } } });
+  });
+});
