@@ -207,4 +207,22 @@ describe("searchDocByName", () => {
     );
     expect(result).toEqual({rows:{data: mockResult.data}});
   });
+
+  test('it will returns list of doctors matching the name with uppercase characters', async () => {
+    const mockResult = {
+      data: [
+        { id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true },
+        { id: 2, name: 'Dr. Jane Smith', specialization: 'pediatrics', is_approved: true },
+      ],
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
+
+    const result = await searchName('JOHN');
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+        `SELECT * FROM user,doctor WHERE id=user_id and name like 'JOHN' and is_approved = 1`
+    );
+    expect(result).toEqual({rows:{ data: mockResult.data }});
+  });
 });
