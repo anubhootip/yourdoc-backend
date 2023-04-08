@@ -189,4 +189,22 @@ describe("searchDocByName", () => {
     );
     expect(result).toEqual({ rows:{ rows: mockResult.rows } });
   });
+
+  test('returns list of doctors matching the name with special characters', async () => {
+    const mockResult = {
+      data: [
+        { id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true },
+        { id: 2, name: 'Dr. Jane Smith', specialization: 'pediatrics', is_approved: true },
+      ],
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
+
+    const result = await searchName('Doe#');
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+        `SELECT * FROM user,doctor WHERE id=user_id and name like 'Doe#' and is_approved = 1`
+    );
+    expect(result).toEqual({rows:{data: mockResult.data}});
+  });
 });
