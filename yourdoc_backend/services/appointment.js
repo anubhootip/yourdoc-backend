@@ -11,7 +11,7 @@ async function getByDoctorId(doctorId, page = 1) {
       appointment a, doctor d, user u
       WHERE a.doctor_id = d.user_id and d.user_id = '${doctorId}' and u.id=d.user_id) pAppoint, user u
     WHERE u.id = pAppoint.patient_id
-      LIMIT ${offset},${config.listPerPage}
+      LIMIT ${offset},${config.listPerPage};
     `
   );
   const data = helper.emptyOrRows(rows);

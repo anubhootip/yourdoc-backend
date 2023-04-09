@@ -17,6 +17,17 @@ async function getDoctors(page = 1) {
   }
 }
 
+async function getDoctor(userId) {
+  const row = await db.query(
+    `SELECT id, email, name, phone, dob, gender, address, latlong, specialization FROM user INNER JOIN doctor ON user.id = doctor.user_id WHERE doctor.user_id = "${userId}"`
+  );
+  const [data] = helper.emptyOrRows(row);
+
+  return {
+    data
+  }
+}
+
 async function approveDoctor(userId) {
 
   getEmail(userId, true);
@@ -79,5 +90,6 @@ async function getEmail(userId, bool) {
 module.exports = {
   getDoctors,
   approveDoctor,
-  rejectDoctor
+  rejectDoctor,
+  getDoctor
 }

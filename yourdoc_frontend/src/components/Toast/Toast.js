@@ -9,7 +9,7 @@ export function Toast({ type = 'success', title, text }) {
       bgClass: 'bg-green-100 text-green-700'
     }
   }
-  return <div className="flex flex-col justify-center absolute bottom-0 right-0">
+  return <div className="flex flex-col justify-center absolute bottom-0 right-0 z-50">
     <div
       className={typeValueMap[type].bgClass + " toastBody"}
       id="static-example"

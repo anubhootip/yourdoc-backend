@@ -28,6 +28,9 @@ export function ListCard({ title, headerComponent, onViewAllClick, listData = []
               <p className="text-sm text-gray-500 truncate dark:text-gray-400">
                 {ld.subTitle}
               </p>
+              <p className="text-sm text-gray-500 truncate dark:text-gray-400">
+                {ld.subSubTitle}
+              </p>
             </div>
             <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
               {ld.rightText}

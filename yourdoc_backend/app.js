@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 const dotenv = require('dotenv');
+dotenv.config();
 
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
@@ -19,8 +20,9 @@ const registrationDoctorRouter = require('./routes/doctorRegistration');
 const searchRouter = require('./routes/search');
 const authenticateUserRouter = require('./authenticateUser');
 const adminRouter = require('./routes/admin');
+const uploadRouter = require('./routes/upload');
+const prescriptionRouter = require('./routes/prescription');
 
-dotenv.config();
 
 const app = express();
 // app.use(authenticateUserRouter);
@@ -45,5 +47,7 @@ app.use('/search', searchRouter);
 app.use('/availability', availabilityRouter);
 app.use('/admin', adminRouter);
 app.use('/search', searchRouter);
+app.use('/upload', uploadRouter);
+app.use('/prescription', prescriptionRouter);
 
 module.exports = app;

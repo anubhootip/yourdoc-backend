@@ -18,6 +18,8 @@ export const Fields = [
 ]
 
 export function useProfilePage() {
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState();
   const { getAppointmentsByDoctorId, deleteAppointment } = useAppointment();
   const { setAvailability, getAvailability } = useAvailablitiy();
   const [availState, setAvailState] = useState('isInit');
@@ -47,18 +49,27 @@ export function useProfilePage() {
     const doctorAppointments = await getAppointmentsByDoctorId(user.id);
     const listData = doctorAppointments.map(da => {
       const rightText = DateTime.fromISO(da.appointmentDateTime).toFormat('dd-MM-yyyy hh:mm a')
+      const right = <button onClick={async (e) => {
+        e.stopPropagation();
+        const delAppointment = window.confirm('Do you want to delete appointment on ' + rightText + '?');
+        if (delAppointment) {
+          await deleteAppointment(da.aId);
+          showToastFor5s({ toastText: 'Successfully deleted the appointment of ' + rightText + '.', toastTitle: 'Appointment deleted!', toastType: 'success' });
+          setListData(listData.filter(l => l.aId !== da.aId));
+        }
+      }}>Delete</button>
       return ({
         aId: da.aId,
         title: da.patient_name,
-        subTitle: da.gender + ', Ph: ' + (da.phone || '-') + ', Email: ' + (da.email || '-'),
-        rightText,
-        onItemClick: async () => {
-          const delAppointment = window.confirm('Do you want to delete appointment on ' + rightText + '?');
-          if (delAppointment) {
-            await deleteAppointment(da.aId);
-            showToastFor5s({ toastText: 'Successfully deleted the appointment of ' + rightText + '.', toastTitle: 'Appointment deleted!', toastType: 'success' });
-            setListData(listData.filter(l => l.aId !== da.aId));
+        subSubTitle: da.gender + ', Ph: ' + (da.phone || '-') + ', Email: ' + (da.email || '-'),
+        subTitle: rightText,
+        rightText: right,
+        onItemClick: async (e) => {
+          if (e.currentTarget.tagName.toLowerCase() === 'button') {
+            return;
           }
+          setSelectedPatient(da.patient_id);
+          setIsShowModal(true);
         }
       })
     })
@@ -95,6 +106,10 @@ export function useProfilePage() {
     }
   }
 
-  return { user, listData, onSetAvailability, availState, defaultValues }
+  const onCloseModal = () => {
+    setIsShowModal(false);
+  }
+
+  return { user, listData, onSetAvailability, availState, defaultValues, selectedPatient, isShowModal, onCloseModal }
 
 }

@@ -1,12 +1,14 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ListCard } from "../../components/ListCard/ListCard";
 import { Overlay } from "../../components/Overlay";
 import { ProfileCard } from "../../components/ProfileCard/ProfileCard";
 import { Navbar } from "../../components/nav-bar";
 import { Fields, useProfilePage } from "./useProfilePage";
+import { Modal } from "../../components/Modal/Modal";
+import { PrescriptionPage } from "../../components/PrescriptionPage/PrescriptionPage";
 
 export function DoctorProfile() {
-  const { user, listData, onSetAvailability, availState, defaultValues } = useProfilePage();
+  const { user, listData, onSetAvailability, availState, defaultValues, selectedPatient, isShowModal, onCloseModal } = useProfilePage();
   const refForm = useRef();
 
   const onFillSame = () => {
@@ -24,6 +26,7 @@ export function DoctorProfile() {
       <h2 class="mt-0 mb-2 text-4xl font-medium leading-tight dark:text-gray-200">
         Doctor Overview
       </h2>
+
       <div className="flex gap-4">
         <div className="relative min-w-[500px]">
           {!user ? <Overlay /> : null}
@@ -79,6 +82,7 @@ export function DoctorProfile() {
         </div>
 
       </div>
+      <Modal title="Patient Prescriptions" modalBodyComponent={<PrescriptionPage uploadedByUserId={user.id} patientId={selectedPatient} />} isShowModal={isShowModal} onClose={onCloseModal} />
     </div>
   </>
 }
