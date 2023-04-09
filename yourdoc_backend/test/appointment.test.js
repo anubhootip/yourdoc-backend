@@ -54,7 +54,6 @@ describe('getByPatientId', () => {
 
   const patientId = '123';
   const page = 1;
-  const offset = helper.getOffset(page, config.listPerPage);
 
   const MOCK_ROWS = [
     {
