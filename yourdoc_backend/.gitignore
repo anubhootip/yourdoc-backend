@@ -59,7 +59,7 @@ typings/
 .env
 
 #Uploads by users
-uploads
+uploads/*.*
 
 # misc
 .DS_Store
