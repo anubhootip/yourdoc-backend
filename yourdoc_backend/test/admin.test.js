@@ -218,6 +218,21 @@ describe('rejectDoctor', () => {
     expect(result.message).toEqual('Doctor Rejected Sucessfull!');
     expect(result.data).toEqual([]);
   });
+
+
+  test('should return an error message if the doctor record was not removed', async () => {
+    const userId = 123;
+    const update = { affectedRows: 0 };
+    db.query.mockResolvedValueOnce(update);
+    helper.emptyOrRows.mockReturnValueOnce([]);
+
+    const result = await admin.rejectDoctor(userId);
+
+    expect(db.query).toHaveBeenCalledWith(`DELETE FROM doctor WHERE user_id="${userId}"`);
+    expect(helper.emptyOrRows).toHaveBeenCalledWith(update);
+    expect(result.message).toEqual('Error in Removing Doctor');
+    expect(result.data).toEqual([]);
+  });
 });
 
 
