@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { ListCard } from "../../components/ListCard/ListCard";
 import { Overlay } from "../../components/Overlay";
 import { ProfileCard } from "../../components/ProfileCard/ProfileCard";

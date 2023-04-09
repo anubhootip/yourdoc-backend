@@ -7,6 +7,7 @@ import { useAppointment } from "../../hooks/useAppointment";
 import { ToastContext } from "../../contexts/contexts";
 
 export function useProfilePage() {
+  const [isShowModal, setIsShowModal] = useState(false);
   const { getAppointmentsByPatientId, deleteAppointment } = useAppointment();
   const { showToastFor5s } = useContext(ToastContext);
   const [listData, setListData] = useState();
@@ -50,5 +51,13 @@ export function useProfilePage() {
     setListData(listData?.length ? listData : []);
   };
 
-  return { user, listData }
+  const onCloseModal = () => {
+    setIsShowModal(false);
+  }
+
+  const onClickPrescription = () => {
+    setIsShowModal(true);
+  }
+
+  return { user, listData, isShowModal, onCloseModal, onClickPrescription }
 }
