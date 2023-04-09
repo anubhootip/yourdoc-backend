@@ -10,7 +10,7 @@ async function getRegistrationInfo(creds) {
     `select * from user inner join doctor on user.id = doctor.user_id where user.id = '${id}'`
   );
 
-  if (!result) {
+  if (!result || result.result.rows.length == 0) {
     throw new Error("User not found");
   }
 

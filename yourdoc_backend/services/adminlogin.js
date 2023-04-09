@@ -15,18 +15,6 @@ async function getById() {
   return {result}
 }
 
-// async function adminInfo(creds){
-//   const {email, password} = creds;
-//   const result = await db.query(
-//       `SELECT * FROM user where email='${email}' and password='${password}'`
-//   );
-//   if (!result) {
-//       throw new Error("User not found");
-//   }
-//   return {result}
-  
-// }
-
 async function adminInfo(creds){
   const {email, password} = creds;
   const userResult = await db.query(`SELECT * FROM user WHERE email='${email}'`);

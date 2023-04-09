@@ -1,4 +1,4 @@
-function getOffset(currentPage = 1, listPerPage) {
+function getOffset(listPerPage, currentPage = 1) {
     return (currentPage - 1) * [listPerPage];
 }
 

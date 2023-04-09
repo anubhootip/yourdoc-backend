@@ -4,8 +4,7 @@ const { v4: uuid } = require('uuid');
 
 async function getByDoctorId(doctorId) {
   const rows = await db.query(
-    `SELECT day, from_time, to_time FROM availability
-    WHERE user_id='${doctorId}'`
+    `SELECT day, from_time, to_time FROM availability WHERE user_id='${doctorId}'`
   );
   const data = helper.emptyOrRows(rows);
 
@@ -17,11 +16,7 @@ async function create(availability) {
   const id = uuid();
 
   const result = await db.query(
-    `INSERT INTO availability
-    (id, day, from_time, to_time, user_id)
-    VALUES
-      ('${id}', '${day}', '${from_time}', '${to_time}', '${doctor_id}');
-    `
+    `INSERT INTO availability (id, day, from_time, to_time, user_id) VALUES ('${id}', '${day}', '${from_time}', '${to_time}', '${doctor_id}');`
   );
 
   let message = 'Error in creating availability';
@@ -37,10 +32,7 @@ async function updateOrCreate(availability) {
   const { day, from_time, to_time, doctor_id } = availability;
 
   const result = await db.query(
-    `UPDATE availability 
-    SET from_time='${from_time}',to_time='${to_time}'
-    WHERE day='${day}' and user_id='${doctor_id}';
-    `
+    `UPDATE availability SET from_time='${from_time}',to_time='${to_time}' WHERE day='${day}' and user_id='${doctor_id}';`
   );
 
   let message = 'Error in updating availability';

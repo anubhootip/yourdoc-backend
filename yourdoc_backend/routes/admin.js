@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 const admin = require('../services/admin');
 
 router.get('/', async function (req, res, next) {
@@ -25,7 +25,20 @@ router.get('/', async function (req, res, next) {
   router.put('/:id', async function (req, res, next) {
     try{
         console.log(req.body);
-        res.json(await admin.approveDoctor(req.params.id));
+        const approved = await admin.approveDoctor(req.params.id);
+        if (approved != null && !no_email) {
+          client.send({
+            to: {
+              email: userPatientDbResponse.email
+            },
+            from: {
+              email: process.env.MY_EMAIL
+            },
+            templateId: 'd-45fb664d9f964b559568f677f452e6f5'
+          }).then(() => {
+            console.log("Email was sent");
+          });
+        }
     }
     catch (err) {
         console.error(`Error while approving Doctor`, err.message);
@@ -37,7 +50,20 @@ router.get('/', async function (req, res, next) {
   router.delete('/:id', async function (req, res, next) {
     try{
         console.log(req.body);
-        res.json(await admin.rejectDoctor(req.params.id));
+        const rejected = await admin.rejectDoctor(req.params.id);
+        if (rejected != null && !no_email) {
+          client.send({
+            to: {
+              email: userPatientDbResponse.email
+            },
+            from: {
+              email: process.env.MY_EMAIL
+            },
+            templateId: 'd-f5cca6218d7e49fc96649b9f314a925e'
+          }).then(() => {
+            console.log("Email was sent");
+          });
+        }
     }
     catch (err) {
         console.error(`Error while rejecting Doctor`, err.message);
