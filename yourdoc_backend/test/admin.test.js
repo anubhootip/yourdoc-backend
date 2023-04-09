@@ -147,6 +147,23 @@ describe('getDoctor', () => {
     // Restore mock
     mockEmptyOrRows.mockRestore();
   });
+
+  test('should return undefined if no doctor is found in the database', async () => {
+    const mockUserId = '1';
+    const mockRow = [];
+    const mockEmptyOrRows = jest.spyOn(helper, 'emptyOrRows').mockReturnValue(mockRow);
+    const mockQuery = jest.spyOn(db, 'query').mockResolvedValue(mockRow);
+
+    const result = await admin.getDoctor(mockUserId);
+
+    expect(mockQuery).toHaveBeenCalledWith(
+      `SELECT id, email, name, phone, dob, gender, address, latlong, specialization FROM user INNER JOIN doctor ON user.id = doctor.user_id WHERE doctor.user_id = "${mockUserId}"`
+    );
+    expect(mockEmptyOrRows).toHaveBeenCalledWith(mockRow);
+    expect(result).toEqual({ data: undefined });
+    mockEmptyOrRows.mockRestore();
+    mockQuery.mockRestore();
+  });
 });
 
 
