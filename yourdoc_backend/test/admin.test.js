@@ -48,6 +48,42 @@ describe('getDoctors', () => {
     mockEmptyOrRows.mockRestore();
     mockQuery.mockRestore();
   });
+
+  test('should return a list of unapproved doctors with metadata', async () => {
+    const rows = [
+      { id: 1, 
+        email: 'john@example.com', 
+        name: 'Dr John Doe', 
+        phone: '1234567890', 
+        dob: '1990-01-01', 
+        gender: 'male', 
+        address: '123 Main St', 
+        latlong: '12.345678,-98.765432' 
+      },
+      { 
+        id: 2, 
+        email: 'jannet@example.com', 
+        name: 'Dr Jannet Smith', 
+        phone: '9876543210', 
+        dob: '1995-02-01', 
+        gender: 'female', 
+        address: '456 Elm St', 
+        latlong: '23.456789,-87.654321' 
+      }
+    ];
+    const page = 1;
+    const meta = { page };
+    const expected = { data: rows, meta };
+
+    db.query.mockResolvedValueOnce(rows);
+    helper.emptyOrRows.mockReturnValueOnce(rows);
+
+    const result = await admin.getDoctors(page);
+
+    expect(db.query).toHaveBeenCalledWith('SELECT id, email, name, phone, dob, gender, address, latlong FROM user INNER JOIN doctor ON user.id = doctor.user_id WHERE doctor.is_approved = false;');
+    expect(helper.emptyOrRows).toHaveBeenCalledWith(rows);
+    expect(result).toEqual(expected);
+  });
 });
 
 
