@@ -200,4 +200,25 @@ describe('approveDoctor', () => {
 });
 
 
+describe('rejectDoctor', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should remove the doctor record from the database and return a success message', async () => {
+    const userId = 123;
+    const update = { affectedRows: 1 };
+    db.query.mockResolvedValueOnce(update);
+    helper.emptyOrRows.mockReturnValueOnce([]);
+
+    const result = await admin.rejectDoctor(userId);
+
+    expect(db.query).toHaveBeenCalledWith(`DELETE FROM doctor WHERE user_id="${userId}"`);
+    expect(helper.emptyOrRows).toHaveBeenCalledWith(update);
+    expect(result.message).toEqual('Doctor Rejected Sucessfull!');
+    expect(result.data).toEqual([]);
+  });
+});
+
+
 
