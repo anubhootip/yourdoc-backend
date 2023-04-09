@@ -98,8 +98,9 @@ describe('patientInfo function', () => {
 
 });
 
+
 describe('doctorInfo function', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
@@ -119,7 +120,7 @@ describe('doctorInfo function', () => {
     expect(result).toEqual({ message: 'Wrong email or password!!' });
   });
 
-  test('returns doctor data when given correct email and password', async () => {
+  test('returns patient data when given correct email and password', async () => {
     const email = 'foo@example.com';
     const password = 'bar';
     const creds = { email, password };
@@ -297,7 +298,7 @@ describe('adminInfo function', () => {
 });
 
 
-describe('patient getById function', () => {
+describe('getById function', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

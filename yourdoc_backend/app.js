@@ -25,7 +25,7 @@ const prescriptionRouter = require('./routes/prescription');
 
 
 const app = express();
-app.use(cors({ origin: process.env.FE_URL || 'http://localhost:3001', credentials: true, methods: 'GET,PUT,POST,DELETE,OPTIONS', allowedHeaders: 'Content-Type,Authorization' }))
+app.use(cors({ origin: process.env.FE_URL || 'http://localhost:3001', credentials: true, methods: 'GET,PUT,POST,DELETE,OPTIONS', allowedHeaders: 'Content-Type,Authorization' }));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

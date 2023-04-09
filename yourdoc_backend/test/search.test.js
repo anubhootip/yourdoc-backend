@@ -155,74 +155,46 @@ describe('searchDocByPinCode', () => {
 
 describe("searchDocByName", () => {
 
-  test('returns empty list for unknown doctor name', async () => {
-    const mockResult = {
-      rows: {
-        data: [],
-      },
-    };
-    db.query = jest.fn().mockResolvedValue(mockResult);
+  jest.mock('../services/db');
+  describe('searchDocByPinCode', () => {
+    afterEach(() => jest.resetAllMocks());
+    test('should return search result when given valid pincode.', async () => {
+      const resultMocked = [
+        {
+          doctorId: 1,
+          name: "Dr. John",
+          specialization: "General Physician",
+          address: "12345"
+        },
+        {
+          doctorId: 2,
+          name: "Dr. Julia",
+          specialization: "Dermatologist",
+          address: "12345"
+        }
+      ];
+      db.query.mockResolvedValueOnce(resultMocked);
 
-    const result = await searchName('unknown');
+      const result = await searchob.searchPinCode('12345');
 
-    expect(db.query).toHaveBeenCalledTimes(1);
-    expect(db.query).toHaveBeenCalledWith(
-      `SELECT * FROM user,doctor WHERE id=user_id and name like 'unknown' and is_approved = 1`
-    );
-    expect(result).toEqual({ rows: { rows: { data: [] } } });
+      expect(db.query).toHaveBeenCalledWith(
+        "SELECT * FROM doctor INNER JOIN user ON address = '12345' and is_approved = 1;"
+      );
+
+      expect(result.result).toEqual(resultMocked);
+    });
+
+    test('should throw error when given an invalid pincode', async () => {
+      const err = new Error('Invalid pin code');
+      db.query.mockRejectedValueOnce(err);
+
+      await expect(
+        searchob.searchPinCode('invalid_pin_code')
+      ).rejects.toThrow();
+
+      expect(db.query).toHaveBeenCalledWith(
+        "SELECT * FROM doctor INNER JOIN user ON address = 'invalid_pin_code' and is_approved = 1;"
+      );
+    });
   });
 
-  test('returns list of doctors matching the name', async () => {
-    const mockResult = {
-      rows: [
-        { id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true },
-        { id: 2, name: 'Dr. Jane Smith', specialization: 'pediatrics', is_approved: true },
-      ],
-    };
-    db.query = jest.fn().mockResolvedValue(mockResult);
-
-    const result = await searchName('John');
-
-    expect(db.query).toHaveBeenCalledTimes(1);
-    expect(db.query).toHaveBeenCalledWith(
-      `SELECT * FROM user,doctor WHERE id=user_id and name like 'John' and is_approved = 1`
-    );
-    expect(result).toEqual({ rows: { rows: mockResult.rows } });
-  });
-
-  test('returns list of doctors matching the name with special characters', async () => {
-    const mockResult = {
-      data: [
-        { id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true },
-        { id: 2, name: 'Dr. Jane Smith', specialization: 'pediatrics', is_approved: true },
-      ],
-    };
-    db.query = jest.fn().mockResolvedValue(mockResult);
-
-    const result = await searchName('Doe#');
-
-    expect(db.query).toHaveBeenCalledTimes(1);
-    expect(db.query).toHaveBeenCalledWith(
-      `SELECT * FROM user,doctor WHERE id=user_id and name like 'Doe#' and is_approved = 1`
-    );
-    expect(result).toEqual({ rows: { data: mockResult.data } });
-  });
-
-  test('it will returns list of doctors matching the name with uppercase characters', async () => {
-    const mockResult = {
-      data: [
-        { id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true },
-        { id: 2, name: 'Dr. Jane Smith', specialization: 'pediatrics', is_approved: true },
-      ],
-    };
-    db.query = jest.fn().mockResolvedValue(mockResult);
-
-    const result = await searchName('JOHN');
-
-    expect(db.query).toHaveBeenCalledTimes(1);
-    expect(db.query).toHaveBeenCalledWith(
-      `SELECT * FROM user,doctor WHERE id=user_id and name like 'JOHN' and is_approved = 1`
-    );
-    expect(result).toEqual({ rows: { data: mockResult.data } });
-  });
-});
