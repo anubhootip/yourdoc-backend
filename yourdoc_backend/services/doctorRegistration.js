@@ -1,5 +1,5 @@
 const { v4: uuid } = require('uuid');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const db = require('./db');
 const helper = require('../helper');
 const config = require('../dbconfig');
