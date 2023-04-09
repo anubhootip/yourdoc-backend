@@ -7,7 +7,7 @@ import { Overlay } from "../../components/Overlay";
 import Footer from "../Footer";
 
 export function SignUp({ type }) {
-  const { onSubmitSignUp, signUpLoadingState } = useSignUpPage();
+  const { onSubmitSignUp, signUpLoadingState } = useSignUpPage(type);
   const isDoctor = type === 'doctor';
   let formFields = Fields;
   if (isDoctor) {

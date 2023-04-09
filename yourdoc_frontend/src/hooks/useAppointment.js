@@ -36,8 +36,23 @@ export function useAppointment() {
     return data;
   }
 
+  const deleteAppointment = async (appointmentId) => {
+    const { message } = await fetch(API_BASE_URL + '/appointment/' + appointmentId, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: 'delete',
+
+    }).then(j => {
+      return j.json();
+    })
+
+    return message;
+  }
+
   return {
     setAppointment, loadingState, getAppointmentsByPatientId,
-    getAppointmentsByDoctorId
+    getAppointmentsByDoctorId, deleteAppointment
   }
 }

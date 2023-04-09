@@ -46,28 +46,33 @@ export const DoctorFields = [
 
 ]
 
-export function useSignUpPage() {
-  const { setUserPatient } = useUser();
+export function useSignUpPage(type) {
+  const { setUserPatient, setUserDoctor } = useUser();
   const { showToastFor5s } = useContext(ToastContext);
   const navigate = useNavigate();
   const [signUpLoadingState, setSignUpLoadingState] = useState('isInit');
-
+  const isDoctor = type === 'doctor';
+  const formFields = isDoctor ? DoctorFields : Fields;
 
   const onSubmitSignUp = async (e) => {
     e.preventDefault();
-    const formValues = Fields.reduce((p, c) => ({ ...p, [c.id]: e.target[c.id].value }), {});
+    const formValues = formFields.reduce((p, c) => ({ ...p, [c.id]: e.target[c.id].value }), {});
     try {
       setSignUpLoadingState('isLoading');
-      await setUserPatient(formValues);
+      if (isDoctor) {
+        await setUserDoctor(formValues);
+      } else {
+        await setUserPatient(formValues);
+      }
       setSignUpLoadingState('isSuccess');
-      const toastText = "Patient " + formValues.email + ' successful!!';
+      const toastText = "User " + formValues.email + ' successful!!';
       showToastFor5s({ toastText });
     } catch {
       setSignUpLoadingState('isFail');
-      const toastText = "Patient " + formValues.email + ' failed😟';
+      const toastText = "User " + formValues.email + ' failed😟';
       showToastFor5s({ toastText, toastType: 'danger' });
     } finally {
-      navigate('/login');
+      navigate(type ? '/login/' + type : '/login');
     }
   }
 

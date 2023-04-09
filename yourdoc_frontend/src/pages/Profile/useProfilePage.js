@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DateTime } from "luxon";
 import { useCookies } from "react-cookie";
 import jwtDecode from 'jwt-decode';
 import { useNavigate } from 'react-router-dom'
 import { useAppointment } from "../../hooks/useAppointment";
+import { ToastContext } from "../../contexts/contexts";
 
 export function useProfilePage() {
-  const { getAppointmentsByPatientId } = useAppointment();
+  const { getAppointmentsByPatientId, deleteAppointment } = useAppointment();
+  const { showToastFor5s } = useContext(ToastContext);
   const [listData, setListData] = useState();
   const [cookie] = useCookies(["session"]);
   const navigate = useNavigate();
@@ -22,16 +24,31 @@ export function useProfilePage() {
   }, [user]);
 
   useEffect(() => {
-    (async () => {
-      const patientAppointments = await getAppointmentsByPatientId(user.id);
-      const listData = patientAppointments.map(pa => ({
-        title: pa.name, subTitle: pa.specialization,
-        rightText: DateTime.fromISO(pa.datetime).toFormat('dd-LL-yyyy hh:MM'),
-        onItemClick: () => navigate('/appointment/' + pa.doctor_id)
-      }))
-      setListData(listData?.length ? listData : []);
-    })();
+    a();
   }, [])
+
+  const a = async () => {
+    const patientAppointments = await getAppointmentsByPatientId(user.id);
+    const listData = patientAppointments.map(pa => {
+      const rightText = DateTime.fromISO(pa.datetime).toFormat('dd-LL-yyyy hh:mm a')
+      return ({
+        aId: pa.aID,
+        title: pa.name,
+        subTitle: pa.specialization,
+        rightText,
+        onItemClick: async () => {
+          const delAppointment = window.confirm('Do you want to delete appointment on ' + rightText + '?');
+          if (delAppointment) {
+            await deleteAppointment(pa.aId);
+            showToastFor5s({ toastText: 'Successfully deleted the appointment of ' + rightText + '.', toastTitle: 'Appointment deleted!', toastType: 'success' });
+            setListData(listData.filter(l => l.aId !== pa.aId));
+          }
+        }
+      })
+    }
+    )
+    setListData(listData?.length ? listData : []);
+  };
 
   return { user, listData }
 }

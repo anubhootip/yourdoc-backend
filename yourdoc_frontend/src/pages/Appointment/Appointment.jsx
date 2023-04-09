@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Appointment.css';
 import { Navbar } from '../../components/nav-bar';
 import { TimeSlots } from './TImeSlots';
@@ -18,10 +18,11 @@ export function Appointment() {
   const { doctorId } = useParams();
   const { availableSlots } = useGetAvailability(doctorId);
   const { doctor: { name, specialization } = {} } = useGetDoctor(doctorId);
-  const { setAppointment, loadingState } = useAppointment(doctorId);
+  const { setAppointment, loadingState, getAppointmentsByDoctorId } = useAppointment();
   const { showToastFor5s } = useContext(ToastContext);
   const [luxSelectedDay, setLuxSelectedDay] = useState(() => DateTime.now());
   const [selectedTimes, setSelectedTimes] = useState([]);
+  const [alreadyBookedDateTimes, setAlreadyBookedDateTimes] = useState()
   const [cookie] = useCookies(["session"]);
   const navigate = useNavigate();
   let currUserPatientId;
@@ -29,6 +30,15 @@ export function Appointment() {
   try {
     currUserPatientId = jwtDecode(cookie.session).id;
   } catch { }
+
+  useEffect(() => {
+    getDoctorAppointments();
+  }, [])
+
+  const getDoctorAppointments = async () => {
+    const doctorAppointments = await getAppointmentsByDoctorId(doctorId);
+    setAlreadyBookedDateTimes(doctorAppointments.map(da => da.appointmentDateTime));
+  }
 
   const handleSetSelectedDay = (day) => {
     setLuxSelectedDay(day);
@@ -52,12 +62,10 @@ export function Appointment() {
         <div className="relative flex-1 w-full max-w-screen-sm mx-auto flex-wrap">
           {!availableSlots.length ? <Overlay /> : null}
           <div className="justify-center flex bg-white dark:bg-gray-900 shadow-md rounded-lg overflow-x-scroll mx-auto py-4 px-2 md:mx-12">
-            {/* <button type="button" className="btnArrow">←</button> */}
             <DaySelector luxSelectedDay={luxSelectedDay} setLuxSelectedDay={handleSetSelectedDay} />
-            {/* <button type="button" className="btnArrow">→</button> */}
           </div>
           <TimeSlots selectedDay={luxSelectedDay?.toFormat('ccc')} availableSlots={availableSlots}
-            setSelectedTimes={setSelectedTimes} selectedTimes={selectedTimes}
+            setSelectedTimes={setSelectedTimes} selectedTimes={selectedTimes} alreadyBookedDateTimes={alreadyBookedDateTimes}
           />
           <button type="button" onClick={handleBookNow} className="btnTime" disabled={!selectedTimes.length || loadingState !== 'init'}>Book Now</button>
         </div>

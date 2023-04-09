@@ -27,4 +27,13 @@ router.post('/', async function (req, res, next) {
   }
 });
 
+router.delete('/:id', async function (req, res, next) {
+  try {
+    res.json(await appointment.deleteA(req.params.id));
+  } catch (err) {
+    console.error(`Error while creating appointment`, err.message);
+    next(err);
+  }
+})
+
 module.exports = router;
