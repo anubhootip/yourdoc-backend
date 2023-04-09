@@ -184,6 +184,19 @@ describe('approveDoctor', () => {
     expect(result.message).toEqual('Doctor Registeration Sucessfull!');
     expect(result.data).toEqual([{ id: 1, user_id: userId, is_approved: true }]);
   });
+
+  test('should return an error message if the doctor record was not updated', async () => {
+    const userId = 123;
+    db.query.mockResolvedValueOnce({affectedRows: 0});
+    helper.emptyOrRows.mockReturnValueOnce(undefined);
+  
+    const result = await admin.approveDoctor(userId);
+  
+    expect(db.query).toHaveBeenCalledWith(`UPDATE doctor SET is_approved = true WHERE user_id="${userId}"`);
+    expect(helper.emptyOrRows).toHaveBeenCalledTimes(1);
+    expect(result.message).toEqual('Error in Updating Doctor');
+    expect(result.data).toEqual(undefined);
+  });
 });
 
 
