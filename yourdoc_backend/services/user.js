@@ -6,8 +6,7 @@ const { v4: uuid } = require('uuid');
 async function getMultiple(page = 1) {
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
-    `SELECT name, email
-    FROM user LIMIT ${offset},${config.listPerPage}`
+    `SELECT name, email FROM user LIMIT ${offset},${config.listPerPage}`
   );
   const data = helper.emptyOrRows(rows);
   const meta = { page };
@@ -17,8 +16,7 @@ async function getMultiple(page = 1) {
 
 async function getById(userId) {
   const rows = await db.query(
-    `SELECT name, email
-    FROM user where id=${userId}`
+    `SELECT name, email FROM user where id=${userId}`
   );
   const [data] = helper.emptyOrRows(rows);
 
