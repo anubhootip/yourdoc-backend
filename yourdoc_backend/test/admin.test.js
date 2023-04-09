@@ -167,4 +167,24 @@ describe('getDoctor', () => {
 });
 
 
+describe('approveDoctor', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should update the doctor record and return a success message', async () => {
+    const userId = 123;
+    db.query.mockResolvedValueOnce({ affectedRows: 1 });
+    helper.emptyOrRows.mockReturnValueOnce([{ id: 1, user_id: userId, is_approved: true }]);
+
+    const result = await admin.approveDoctor(userId);
+
+    expect(db.query).toHaveBeenCalledWith(`UPDATE doctor SET is_approved = true WHERE user_id="${userId}"`);
+    expect(helper.emptyOrRows).toHaveBeenCalledWith({ affectedRows: 1 });
+    expect(result.message).toEqual('Doctor Registeration Sucessfull!');
+    expect(result.data).toEqual([{ id: 1, user_id: userId, is_approved: true }]);
+  });
+});
+
+
 
