@@ -179,6 +179,87 @@ describe('doctorInfo function', () => {
 });
 
 
+describe('doctorInfo function', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('returns an error message when given wrong email and password', async () => {
+    const email = 'nonexistent@example.com';
+    const password = 'wrongpassword';
+    const queryResult = [];
+
+    db.query.mockResolvedValue(queryResult);
+    helper.emptyOrRows.mockReturnValue(queryResult);
+
+    const result = await doctor.doctorInfo({ email, password });
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(helper.emptyOrRows).toHaveBeenCalledTimes(1);
+    expect(helper.emptyOrRows).toHaveBeenCalledWith(queryResult);
+    expect(result).toEqual({ message: 'Wrong email or password!!' });
+  });
+
+  test('returns patient data when given correct email and password', async () => {
+    const email = 'foo@example.com';
+    const password = 'bar';
+    const creds = { email, password };
+    const data = {
+      id: 1,
+      name: 'John Doe',
+      email,
+      password: '$2b$10$123456789012345678901234567890123456789012345678901234567890',
+      user_id: 1,
+      age: 30
+    };
+    db.query.mockResolvedValue([{ ...data }]);
+
+    helper.emptyOrRows.mockReturnValue([data]);
+
+    bcrypt.compare.mockResolvedValue(true);
+
+    const result = await doctor.doctorInfo(creds);
+
+    expect(db.query).toHaveBeenCalledWith(
+      `SELECT * FROM user, doctor where email='${email}' and user_id=id and is_approved=1`
+    );
+    expect(helper.emptyOrRows).toHaveBeenCalledWith([{ ...data }]);
+    expect(bcrypt.compare).toHaveBeenCalledWith(password, data.password);
+    expect(result).toEqual({ data, message: 'success' });
+  });
+
+  test('returns an error message when given correct email but wrong password', async () => {
+    const email = 'foo@example.com';
+    const password = 'bar';
+    const creds = { email, password };
+    const data = {
+      id: 1,
+      name: 'John Doe',
+      email,
+      password: '$2b$10$123456789012345678901234567890123456789012345678901234567890',
+      user_id: 1,
+      age: 30
+    };
+
+    db.query.mockResolvedValue([{ ...data }]);
+
+    helper.emptyOrRows.mockReturnValue([data]);
+
+    bcrypt.compare.mockResolvedValue(false);
+
+    const result = await doctor.doctorInfo(creds);
+
+    expect(db.query).toHaveBeenCalledWith(
+      `SELECT * FROM user, doctor where email='${email}' and user_id=id and is_approved=1`
+    );
+    expect(helper.emptyOrRows).toHaveBeenCalledWith([{ ...data }]);
+    expect(bcrypt.compare).toHaveBeenCalledWith(password, data.password);
+    expect(result).toEqual({ message: 'Wrong email or password!!' });
+  });
+
+});
+
+
 describe('adminInfo function', () => {
 
   const creds = {
@@ -264,9 +345,11 @@ describe('patient getById function', () => {
           name: 'John Doe',
           type: 'patient',
           email: 'johndoe@example.com',
-          is_approved: '0',
-          specialization: 'Dentist',
-          latlong: '0.000000,0.000000'
+          password: 'password123',
+          dob: '1990-01-01',
+          address: '123 Main St',
+          latlong: '0.000000,0.000000',
+          blood_group: 'AB+'
         }];
         db.query.mockResolvedValue(expectedRows);
       
@@ -290,6 +373,7 @@ describe('patient getById function', () => {
   
     });
   
+
 
   describe('admin getById function', () => {
 
