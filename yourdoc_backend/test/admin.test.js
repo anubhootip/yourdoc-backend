@@ -104,4 +104,50 @@ describe('getDoctors', () => {
 });
 
 
+describe('getDoctor', () => {
+  test('should fetch a doctor from the database', async () => {
+    // Arrange
+    const userId = 123;
+    const mockRow = [
+      {
+        id: 1,
+        email: 'doctor@example.com',
+        name: 'Dr Bhatt',
+        phone: '1234567890',
+        dob: '1990-01-01',
+        gender: 'male',
+        address: '123 Main St',
+        latlong: '0.000000,0.000000',
+        specialization: 'Cardiology',
+      },
+    ];
+    const mockData = {
+      id: 1,
+      email: 'doctor@example.com',
+      name: 'Dr Bhatt',
+      phone: '1234567890',
+      dob: '1990-01-01',
+      gender: 'male',
+      address: '123 Main St',
+      latlong: '0.000000,0.000000',
+      specialization: 'Cardiology',
+    };
+    const mockEmptyOrRows = jest.spyOn(helper, 'emptyOrRows').mockReturnValue([mockData]);
+
+    db.query.mockResolvedValue(mockRow);
+
+    // Act
+    const result = await admin.getDoctor(userId);
+
+    // Assert
+    expect(db.query).toHaveBeenCalledWith(`SELECT id, email, name, phone, dob, gender, address, latlong, specialization FROM user INNER JOIN doctor ON user.id = doctor.user_id WHERE doctor.user_id = "${userId}"`);
+    expect(mockEmptyOrRows).toHaveBeenCalledWith(mockRow);
+    expect(result).toEqual({ data: mockData });
+
+    // Restore mock
+    mockEmptyOrRows.mockRestore();
+  });
+});
+
+
 
