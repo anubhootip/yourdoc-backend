@@ -13,7 +13,7 @@ export function ListCard({ title, headerComponent, onViewAllClick, listData = []
     {headerComponent}
     <div className="flow-root">
       <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-        {listData.map(ld => <li onClick={ld.onItemClick} className="py-3 sm:py-4 hover:dark:bg-gray-900 cursor-pointer">
+        {listData.map(ld => <li key={ld.title} onClick={ld.onItemClick} className="py-3 sm:py-4 hover:dark:bg-gray-900 cursor-pointer">
           <div className="flex items-center space-x-4">
             <div className="flex-shrink-0">
               {ld.avatarURL

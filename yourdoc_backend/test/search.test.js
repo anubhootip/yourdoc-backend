@@ -1,127 +1,228 @@
 const db = require('../services/db');
-const searchob = require('../services/search');
+const { search } = require("../services/search");
+const { getDocSpec } = require("../services/search");
+const { searchName } = require("../services/search");
+const { searchPinCode } = require("../services/search");
 
+describe("search", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("returns search results based on query", async () => {
+    const q = "cardiology";
+    const expectedResult = {
+      data: {
+        rows: [
+          {
+            address: "123 Main St",
+            email: "johndoe@example.com",
+            id: 1,
+            name: "Dr. John Doe",
+            specialization: "cardiology",
+            user_id: 1,
+          },
+        ],
+      },
+    };
+
+    const mockResult = { rows: expectedResult.data.rows };
+    const querySpy = jest.spyOn(db, "query").mockResolvedValue(mockResult);
+
+    const result = await search(q);
+
+    expect(querySpy).toHaveBeenCalledTimes(1);
+    expect(querySpy).toHaveBeenCalledWith(
+      "SELECT * FROM doctor,user WHERE id=user_id AND is_approved = 1 AND (specialization like 'cardiology%' OR name like 'cardiology%' OR email like 'cardiology%' OR address like '%cardiology%' )"
+    );
+    expect(result).toEqual(expectedResult);
+  });
+
+  test("It will return empty list if unknown query entered", async () => {
+    const q = "foobar";
+    const expectedResult = {
+      data: {
+        rows: [],
+      },
+    };
+
+    const mockResult = { rows: [] };
+    const querySpy = jest.spyOn(db, "query").mockResolvedValue(mockResult);
+
+    const result = await search(q);
+
+    expect(querySpy).toHaveBeenCalledTimes(1);
+    expect(querySpy).toHaveBeenCalledWith(
+      "SELECT * FROM doctor,user WHERE id=user_id AND is_approved = 1 AND (specialization like 'foobar%' OR name like 'foobar%' OR email like 'foobar%' OR address like '%foobar%' )"
+    );
+    expect(result).toEqual(expectedResult);
+  });
+
+  test('It will throw an error if database query fails', async () => {
+    const q = 'cardiology';
+
+    const querySpy = jest.spyOn(db, 'query').mockRejectedValue(new Error('Query failed'));
+
+    await expect(search(q)).rejects.toThrowError('Query failed');
+    expect(querySpy).toHaveBeenCalledWith("SELECT * FROM doctor,user WHERE id=user_id AND is_approved = 1 AND (specialization like 'cardiology%' OR name like 'cardiology%' OR email like 'cardiology%' OR address like '%cardiology%' )");
+  });
+});
 
 describe('searchDocBySpec', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    test('returns approved doctors based on specialization', async () => {
-      const spec = 'cardiology';
-      const expectedResult = { result: { rows: [{id: 1, name: 'Dr. Smith', specialization: 'cardiology'}] }};
+  test('returns doctors with matching specialization', async () => {
+    const mockResult = {
+      rows: [
+        { id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true },
+        { id: 2, name: 'Dr. Jane Smith', specialization: 'cardiology', is_approved: true },
+      ],
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
+    const result = await getDocSpec('cardiology');
+    expect(result).toEqual({ result: { rows: mockResult.rows } });
+  });
 
-      const mockResult = { rows: [{id: 1, name: 'Dr. Smith', specialization: 'cardiology'}] };
-      const querySpy = jest.spyOn(db, 'query').mockResolvedValue(mockResult);
+  test('returns empty list for unknown specialization', async () => {
+    const mockResult = {
+      data: { rows: [], },
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
 
-      const result = await searchob.getDocSpec(spec);
+    const result = await getDocSpec('unknown');
 
-      expect(querySpy).toHaveBeenCalledTimes(1);
-      expect(querySpy).toHaveBeenCalledWith("SELECT * FROM doctor WHERE specialization = 'cardiology' and is_approved = 1");
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+      `SELECT * FROM doctor WHERE specialization = 'unknown' and is_approved = 1`
+    );
+    expect(result).toEqual({ result: { data: { rows: [] } } });
+  });
 
-      expect(result).toEqual(expectedResult);
-    });
+  test('throws an error if database query fails', async () => {
+    const mockError = new Error('Database query error');
+    db.query.mockRejectedValue(mockError);
 
-    test('returns empty list for unknown specialization', async () => {
-        const spec = 'foot medicine';
-        const expectedResult = { result: { rows: [] } };
+    await expect(getDocSpec('cardiology')).rejects.toThrow(mockError);
 
-        const mockResult = { rows: [] };
-        const querySpy = jest.spyOn(db, 'query').mockResolvedValue(mockResult);
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+      `SELECT * FROM doctor WHERE specialization = 'cardiology' and is_approved = 1`
+    );
+  });
+});
 
-        const result = await searchob.getDocSpec(spec);
+describe('searchDocByPinCode', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-        expect(querySpy).toHaveBeenCalledTimes(1);
-        expect(querySpy).toHaveBeenCalledWith("SELECT * FROM doctor WHERE specialization = 'foot medicine' and is_approved = 1");
+  test('It will return an object with return key', async () => {
+    db.query = jest.fn(() => Promise.resolve([]));
+    const pinCode = '123456';
 
-        expect(result).toEqual(expectedResult);
-    });
+    const response = await searchPinCode(pinCode);
 
-    test('throws an error if database query fails', async () => {
-        const spec = 'cardiology';
+    expect(response).toEqual(expect.objectContaining({
+      result: expect.any(Array)
+    }));
+  });
 
-        const querySpy = jest.spyOn(db, 'query').mockRejectedValue(new Error('Query failed'));
+  test('It should call db.query for correct query', async () => {
+    const mockDbQuery = jest.fn(() => Promise.resolve([]));
+    db.query = mockDbQuery;
+    const pinCode = '123456';
 
-        await expect(searchob.getDocSpec(spec)).rejects.toThrowError('Query failed');
-        expect(querySpy).toHaveBeenCalledWith("SELECT * FROM doctor WHERE specialization = 'cardiology' and is_approved = 1");
-    });
+    await searchPinCode(pinCode);
+
+    expect(mockDbQuery).toHaveBeenCalledWith(`SELECT * FROM doctor INNER JOIN user ON address = '${pinCode}' and is_approved = 1;`);
+  });
+
+  test('It should return data from db.query', async () => {
+    // Arrange
+    const mockData = [{ id: 1, name: 'Dr. John Doe' }];
+    db.query = jest.fn(() => Promise.resolve(mockData));
+    const pinCode = '123456';
+
+    // Act
+    const response = await searchPinCode(pinCode);
+
+    // Assert
+    expect(response.result).toEqual(mockData);
+  });
 });
 
 describe("searchDocByName", () => {
-    test("should return the search result if doctor exists and is approved", async () => {
-        const docName = "John";
-        db.query = jest
-            .fn()
-            .mockImplementationOnce(() => [{ id: 1, name: "John", is_approved: true }]);
 
-        const result = await searchob.searchName(docName);
+  test('returns empty list for unknown doctor name', async () => {
+    const mockResult = {
+      rows: {
+        data: [],
+      },
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
 
-        expect(db.query).toHaveBeenCalledWith(
-            `SELECT * FROM doctor WHERE name = '${docName}' and is_approved = 1`
-        );
-        expect(result).toEqual({ result: [{ id: 1, name: "John", is_approved: true}]});
-    });
+    const result = await searchName('unknown');
 
-    test("should return an empty array if no doctor was found", async () => {
-        const docName = "Mike";
-        db.query = jest.fn().mockImplementationOnce(() => []);
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+      `SELECT * FROM user,doctor WHERE id=user_id and name like 'unknown' and is_approved = 1`
+    );
+    expect(result).toEqual({ rows: { rows: { data: [] } } });
+  });
 
-        const result = await searchob.searchName(docName);
+  test('returns list of doctors matching the name', async () => {
+    const mockResult = {
+      rows: [
+        { id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true },
+        { id: 2, name: 'Dr. Jane Smith', specialization: 'pediatrics', is_approved: true },
+      ],
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
 
-        expect(db.query).toHaveBeenCalledWith(
-            `SELECT * FROM doctor WHERE name = '${docName}' and is_approved = 1`
-        );
-        expect(result).toEqual({ result: [] });
-    });
+    const result = await searchName('John');
 
-    test('should throw an error when database query fails', async () => {
-        const docName = 'John Doe';
-        db.query.mockRejectedValueOnce(new Error('Database error'));
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+      `SELECT * FROM user,doctor WHERE id=user_id and name like 'John' and is_approved = 1`
+    );
+    expect(result).toEqual({ rows: { rows: mockResult.rows } });
+  });
 
-        await expect(searchob.searchName(docName)).rejects.toThrow('Database error');
-    });
+  test('returns list of doctors matching the name with special characters', async () => {
+    const mockResult = {
+      data: [
+        { id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true },
+        { id: 2, name: 'Dr. Jane Smith', specialization: 'pediatrics', is_approved: true },
+      ],
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
+
+    const result = await searchName('Doe#');
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+      `SELECT * FROM user,doctor WHERE id=user_id and name like 'Doe#' and is_approved = 1`
+    );
+    expect(result).toEqual({ rows: { data: mockResult.data } });
+  });
+
+  test('it will returns list of doctors matching the name with uppercase characters', async () => {
+    const mockResult = {
+      data: [
+        { id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true },
+        { id: 2, name: 'Dr. Jane Smith', specialization: 'pediatrics', is_approved: true },
+      ],
+    };
+    db.query = jest.fn().mockResolvedValue(mockResult);
+
+    const result = await searchName('JOHN');
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+      `SELECT * FROM user,doctor WHERE id=user_id and name like 'JOHN' and is_approved = 1`
+    );
+    expect(result).toEqual({ rows: { data: mockResult.data } });
+  });
 });
-
-jest.mock('../services/db');
-describe('searchDocByPinCode', () => {
-    afterEach(() => jest.resetAllMocks());
-    test('should return search result when given valid pincode.', async () => {
-        const resultMocked = [
-            {
-                doctorId: 1,
-                name: "Dr. John",
-                specialization: "General Physician",
-                address: "12345"
-            },
-            {
-                doctorId: 2,
-                name: "Dr. Julia",
-                specialization: "Dermatologist",
-                address: "12345"
-            }
-        ];
-        db.query.mockResolvedValueOnce(resultMocked);
-
-        const result = await searchob.searchPinCode('12345');
-
-        expect(db.query).toHaveBeenCalledWith(
-            "SELECT * FROM doctor INNER JOIN user ON address = '12345' and is_approved = 1;"
-        );
-
-        expect(result.result).toEqual(resultMocked);
-    });
-
-    test('should throw error when given an invalid pincode', async () => {
-        const err = new Error('Invalid pin code');
-        db.query.mockRejectedValueOnce(err);
-
-        await expect(
-            searchob.searchPinCode('invalid_pin_code')
-        ).rejects.toThrow();
-
-        expect(db.query).toHaveBeenCalledWith(
-            "SELECT * FROM doctor INNER JOIN user ON address = 'invalid_pin_code' and is_approved = 1;"
-        );
-    });
-});
-
