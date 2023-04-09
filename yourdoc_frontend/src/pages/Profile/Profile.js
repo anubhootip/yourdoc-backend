@@ -6,6 +6,8 @@ import { ProfileCard } from "../../components/ProfileCard/ProfileCard";
 import { useSearch } from "../../hooks/useSearch";
 import { useProfilePage } from "./useProfilePage";
 import { useNavigate } from "react-router-dom";
+import { Modal } from "../../components/Modal/Modal";
+import { PrescriptionPage } from "../../components/PrescriptionPage/PrescriptionPage";
 
 function Search({ setSearchedDoctorResults }) {
   const { search } = useSearch();
@@ -46,7 +48,7 @@ function Search({ setSearchedDoctorResults }) {
 }
 
 export function Profile() {
-  const { user, listData } = useProfilePage();
+  const { user, listData, isShowModal, onCloseModal, onClickPrescription } = useProfilePage();
   const [searchedDoctorResults, setSearchedDoctorResults] = useState();
   const navigate = useNavigate();
 
@@ -66,7 +68,8 @@ export function Profile() {
       <div className="flex gap-4">
         <div className="relative">
           {!user ? <Overlay /> : null}
-          <ProfileCard user={user} />
+          <ProfileCard user={user} onClickPrescription={onClickPrescription} />
+          <Modal title="Patient Prescriptions" modalBodyComponent={<PrescriptionPage uploadedByUserId={user.id} patientId={user.id} />} isShowModal={isShowModal} onClose={onCloseModal} />
         </div>
         <div className="relative">
           {listData ? null : <Overlay />}

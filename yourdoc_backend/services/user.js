@@ -12,10 +12,7 @@ async function getMultiple(page = 1) {
   const data = helper.emptyOrRows(rows);
   const meta = { page };
 
-  return {
-    data,
-    meta
-  }
+  return { data, meta }
 }
 
 async function getById(userId) {
@@ -25,9 +22,7 @@ async function getById(userId) {
   );
   const [data] = helper.emptyOrRows(rows);
 
-  return {
-    data
-  }
+  return { data }
 }
 
 async function getByIdNType(userId, type) {
@@ -39,9 +34,7 @@ async function getByIdNType(userId, type) {
   const rows = await db.query(userTypeQueryMap[type.toLowerCase()]);
   const [data] = helper.emptyOrRows(rows);
 
-  return {
-    data
-  }
+  return { data }
 }
 
 async function create(user) {

@@ -2,6 +2,7 @@ source .env
 
 # Building React output
 if [ "$NETLIFY_AUTH_TOKEN" != "" ]; then
+  rm -rf ./frontend_build.zip
   npm install
   cd yourdoc_frontend
   rm -rf build

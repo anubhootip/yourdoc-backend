@@ -76,18 +76,18 @@ describe('searchDocBySpec', () => {
   test('returns doctors with matching specialization', async () => {
     const mockResult = {
       rows: [
-        {id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true},
-        {id: 2, name: 'Dr. Jane Smith', specialization: 'cardiology', is_approved: true},
+        { id: 1, name: 'Dr. John Doe', specialization: 'cardiology', is_approved: true },
+        { id: 2, name: 'Dr. Jane Smith', specialization: 'cardiology', is_approved: true },
       ],
     };
     db.query = jest.fn().mockResolvedValue(mockResult);
     const result = await getDocSpec('cardiology');
-    expect(result).toEqual({result: {rows: mockResult.rows}});
+    expect(result).toEqual({ result: { rows: mockResult.rows } });
   });
 
   test('returns empty list for unknown specialization', async () => {
     const mockResult = {
-      data: { rows: [],},
+      data: { rows: [], },
     };
     db.query = jest.fn().mockResolvedValue(mockResult);
 
@@ -95,7 +95,7 @@ describe('searchDocBySpec', () => {
 
     expect(db.query).toHaveBeenCalledTimes(1);
     expect(db.query).toHaveBeenCalledWith(
-        `SELECT * FROM doctor WHERE specialization = 'unknown' and is_approved = 1`
+      `SELECT * FROM doctor WHERE specialization = 'unknown' and is_approved = 1`
     );
     expect(result).toEqual({ result: { data: { rows: [] } } });
   });
@@ -108,7 +108,7 @@ describe('searchDocBySpec', () => {
 
     expect(db.query).toHaveBeenCalledTimes(1);
     expect(db.query).toHaveBeenCalledWith(
-        `SELECT * FROM doctor WHERE specialization = 'cardiology' and is_approved = 1`
+      `SELECT * FROM doctor WHERE specialization = 'cardiology' and is_approved = 1`
     );
   });
 });
@@ -167,7 +167,7 @@ describe("searchDocByName", () => {
 
     expect(db.query).toHaveBeenCalledTimes(1);
     expect(db.query).toHaveBeenCalledWith(
-        `SELECT * FROM user,doctor WHERE id=user_id and name like 'unknown' and is_approved = 1`
+      `SELECT * FROM user,doctor WHERE id=user_id and name like 'unknown' and is_approved = 1`
     );
     expect(result).toEqual({ rows: { rows: { data: [] } } });
   });
@@ -185,9 +185,9 @@ describe("searchDocByName", () => {
 
     expect(db.query).toHaveBeenCalledTimes(1);
     expect(db.query).toHaveBeenCalledWith(
-        `SELECT * FROM user,doctor WHERE id=user_id and name like 'John' and is_approved = 1`
+      `SELECT * FROM user,doctor WHERE id=user_id and name like 'John' and is_approved = 1`
     );
-    expect(result).toEqual({ rows:{ rows: mockResult.rows } });
+    expect(result).toEqual({ rows: { rows: mockResult.rows } });
   });
 
   test('returns list of doctors matching the name with special characters', async () => {
@@ -203,9 +203,9 @@ describe("searchDocByName", () => {
 
     expect(db.query).toHaveBeenCalledTimes(1);
     expect(db.query).toHaveBeenCalledWith(
-        `SELECT * FROM user,doctor WHERE id=user_id and name like 'Doe#' and is_approved = 1`
+      `SELECT * FROM user,doctor WHERE id=user_id and name like 'Doe#' and is_approved = 1`
     );
-    expect(result).toEqual({rows:{data: mockResult.data}});
+    expect(result).toEqual({ rows: { data: mockResult.data } });
   });
 
   test('it will returns list of doctors matching the name with uppercase characters', async () => {
@@ -221,8 +221,8 @@ describe("searchDocByName", () => {
 
     expect(db.query).toHaveBeenCalledTimes(1);
     expect(db.query).toHaveBeenCalledWith(
-        `SELECT * FROM user,doctor WHERE id=user_id and name like 'JOHN' and is_approved = 1`
+      `SELECT * FROM user,doctor WHERE id=user_id and name like 'JOHN' and is_approved = 1`
     );
-    expect(result).toEqual({rows:{ data: mockResult.data }});
+    expect(result).toEqual({ rows: { data: mockResult.data } });
   });
 });
