@@ -2,12 +2,7 @@
   "name": "group21",
   "version": "1.0.0",
   "description": "",
-  "engines": {
-    "node": "14.x"
-  },
   "scripts": {
-    "start": "node yourdoc_backend/bin/www",
-    "build": "cd yourdoc_backend && npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
