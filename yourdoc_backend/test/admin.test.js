@@ -84,6 +84,23 @@ describe('getDoctors', () => {
     expect(helper.emptyOrRows).toHaveBeenCalledWith(rows);
     expect(result).toEqual(expected);
   });
+
+
+  test('should return an empty list and metadata if there are no unapproved doctors', async () => {
+    const rows = [];
+    const page = 1;
+    const meta = { page };
+    const expected = { data: rows, meta };
+
+    db.query.mockResolvedValueOnce(rows);
+    helper.emptyOrRows.mockReturnValueOnce(rows);
+
+    const result = await admin.getDoctors(page);
+
+    expect(db.query).toHaveBeenCalledWith('SELECT id, email, name, phone, dob, gender, address, latlong FROM user INNER JOIN doctor ON user.id = doctor.user_id WHERE doctor.is_approved = false;');
+    expect(helper.emptyOrRows).toHaveBeenCalledWith(rows);
+    expect(result).toEqual(expected);
+  });
 });
 
 
