@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { ListCard } from "../../components/ListCard/ListCard";
 import { Overlay } from "../../components/Overlay";
 import { ProfileCard } from "../../components/ProfileCard/ProfileCard";
@@ -22,7 +22,7 @@ export function DoctorProfile() {
 
   return <>
     <Navbar />
-    <div className="dark:bg-slate-700 min-h-screen flex-wrap p-4">
+    <div className="dark:bg-slate-700 min-h-screen flex-wrap p-4 pt-10">
       <h2 class="mt-0 mb-2 text-4xl font-medium leading-tight dark:text-gray-200">
         Doctor Overview
       </h2>

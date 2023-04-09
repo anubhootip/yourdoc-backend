@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { API_BASE_URL } from "../../utils/constants";
 import axios from "axios";
 import { AdminNavbar } from "../../components/adminNavbar";
 import { ToastContainer, toast } from "react-toastify";
@@ -15,7 +16,7 @@ export const UserProfile = () => {
 
   //const history = useHistory();
   const getdata = async () => {
-    const response = await axios.get(`http://localhost:3000/admin/${id}`);
+    const response = await axios.get(API_BASE_URL + `/admin/${id}`);
     setUserData(response.data.data);
   };
 
@@ -25,7 +26,7 @@ export const UserProfile = () => {
 
   const deleteUser = async (id) => {
     try {
-      await axios.delete("http://localhost:3000/admin/" + id);
+      await axios.delete(API_BASE_URL + "/admin/" + id);
       toast.success("Doctor Removed Sucessfully", {
         position: toast.POSITION.TOP_CENTER,
       });
@@ -37,7 +38,7 @@ export const UserProfile = () => {
 
   const approveUser = async (id) => {
     try {
-      await axios.put("http://localhost:3000/admin/" + id);
+      await axios.put(API_BASE_URL + "/admin/" + id);
       toast.success("Doctor Approved Successfully", {
         position: toast.POSITION.TOP_CENTER,
       });

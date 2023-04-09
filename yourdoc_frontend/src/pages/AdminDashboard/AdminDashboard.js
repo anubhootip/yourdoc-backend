@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
+import { API_BASE_URL } from "../../utils/constants";
 
 
 export function AdminDashboard() {
@@ -12,7 +13,7 @@ export function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(0);
 
   const loadData = async () => {
-    const response = await axios.get("http://localhost:3000/admin");
+    const response = await axios.get(API_BASE_URL + "/admin");
     setUserData(response.data.data);
   };
 
@@ -23,13 +24,11 @@ export function AdminDashboard() {
 
   const deleteUser = async (id) => {
     try {
-      await axios.delete("http://localhost:3000/admin/" + id);
+      await axios.delete(API_BASE_URL + "/admin/" + id);
       toast.success("Doctor Removed Sucessfully", {
         position: toast.POSITION.TOP_CENTER,
       });
-      //await delay(2000);
       loadData();
-      //window.location.reload();
     } catch (err) {
       console.log(err);
     }
@@ -37,13 +36,11 @@ export function AdminDashboard() {
 
   const approveUser = async (id) => {
     try {
-      await axios.put("http://localhost:3000/admin/" + id);
+      await axios.put(API_BASE_URL + "/admin/" + id);
       toast.success("Doctor Approved Successfully", {
         position: toast.POSITION.TOP_CENTER,
       });
-      //await delay(2000);
       loadData();
-      //window.location.reload();
     } catch (err) {
       console.log(err);
     }

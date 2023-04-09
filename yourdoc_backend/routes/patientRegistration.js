@@ -1,7 +1,6 @@
 let express = require('express');
 let router = express.Router();
 let client = require('@sendgrid/mail');
-const bcrypt = require('bcrypt');
 const user = require('../services/patientRegistration');
 
 client.setApiKey(process.env.SENDGRID_API_KEY);

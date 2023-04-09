@@ -110,20 +110,25 @@ function Navbar() {
                     <Link
                       className="dropdown-item text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-gray-700 hover:bg-gray-100"
                       to="/login/doctor"
-                    >Doctor Login</Link>
+                    >
+                      Doctor Login
+                    </Link>
                   </li>
                   <li>
                     <Link
                       className="dropdown-item text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-gray-700 hover:bg-gray-100"
                       to="/login"
-                    >Patient Login</Link>
+                    >
+                      Patient Login
+                    </Link>
                   </li>
 
                   <li>
                     <Link
                       className="dropdown-item text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-gray-700 hover:bg-gray-100"
-                      to="/patientRegistration"
-                    >Admin Login</Link>
+                      to="/login/admin"
+                    >Admin Login
+                    </Link>
                   </li>
                 </ul>
               </div>
