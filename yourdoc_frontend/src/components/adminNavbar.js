@@ -1,13 +1,15 @@
 import React from "react";
+import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
 
 function AdminNavbar({ fixed }) {
-  const logOut = async () => {
-    try {
-      window.location.href = '/'
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const [, setCookie] = useCookies(["session"]);
+  const navigate = useNavigate();
+
+  const onLogout = () => {
+    setCookie("session", "", { path: "/", maxAge: 1 });
+    navigate("/");
+  }
 
 
   return (
@@ -25,7 +27,7 @@ function AdminNavbar({ fixed }) {
           <div className="flex-grow lg:flex lg:items-center lg:w-auto hidden" id="example-navbar-info">
             <ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
               <li className="nav-item">
-                <button class="bg-white hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onClick={e => logOut()}>
+                <button class="bg-white hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onClick={onLogout}>
                   Log Out
                 </button>
               </li>

@@ -1,16 +1,27 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
-const user = require('../services/adminlogin');
+const adminLoginService = require('../services/adminlogin');
 const authenticate = require('../authenticateUser');
 
 
 router.get('/', authenticate, async function (req, res, next) {
   try {
-    res.json(await user.getById(req.body));
+    res.json(await adminLoginService.getById(req.body));
   } catch (err) {
     console.error(`Error while getting Doctors Info `, err.message);
+    next(err);
+  }
+});
+
+router.post('/register', async function (req, res, next) {
+  try {
+    const { email, id, message } = await adminLoginService.adminRegister(req.body);
+
+    res.json({ email, id, message });
+  }
+  catch (err) {
+    console.error('Wrong Credentials', err.message);
     next(err);
   }
 });
@@ -18,13 +29,14 @@ router.get('/', authenticate, async function (req, res, next) {
 
 router.post('/', async function (req, res, next) {
   try {
-    const patient = await user.adminInfo(req.body);
-    if (patient == null) {
-      return res.status(400).send('Wrong credentials');
+    const { data, message } = await adminLoginService.adminInfo(req.body);
+    if (!data) {
+      return res.status(401).json({ message });
     }
-    const accessToken = jwt.sign(patient, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30m' });
+    const accessToken = jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30m' });
+
     console.log(accessToken);
-    res.json({ accessToken: accessToken });
+    res.json({ data: accessToken, message });
   } catch (err) {
     console.error('Error while authenticating patient', err.message);
     next(err);
