@@ -9,6 +9,17 @@ async function query(sql, params) {
     return results;
 }
 
+async function poolExecute(sqlQueries) {
+    const pool = mysql.createPool(config.db);
+    const results = [];
+    for (const query of sqlQueries) {
+        const [result] = await pool.query(query);
+        results.push(result);
+    }
+    return results;
+}
+
 module.exports = {
-    query
+    query,
+    poolExecute
 }

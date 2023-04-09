@@ -15,11 +15,9 @@ router.get('/', async function (req, res, next) {
 router.post('/multiple', async function (req, res, next) {
   const { doctor_id, availabilities } = req.body;
   try {
-    const createdAvailabilities = [];
-    for (let i = 0; i < availabilities.length; i++) {
-      createdAvailabilities.push(await availability.create({ ...availabilities[i], doctor_id }))
-    }
-    res.json(createdAvailabilities);
+    await availability.createByPool(availabilities.map(av => ({ ...av, doctor_id })));
+
+    res.json({ message: 'success' });
   } catch (err) {
     console.error(`Error while creating availability`, err.message);
     next(err);
@@ -29,11 +27,9 @@ router.post('/multiple', async function (req, res, next) {
 router.put('/multiple', async function (req, res, next) {
   const { doctor_id, availabilities } = req.body;
   try {
-    const updatedAvailabilities = [];
-    for (let i = 0; i < availabilities.length; i++) {
-      updatedAvailabilities.push(await availability.updateOrCreate({ ...availabilities[i], doctor_id }))
-    }
-    res.json(updatedAvailabilities);
+    await availability.updateOrCreateByPool(availabilities.map(av => ({ ...av, doctor_id })));
+
+    res.json({ message: 'success' });
   } catch (err) {
     console.error(`Error while creating availability`, err.message);
     next(err);

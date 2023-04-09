@@ -11,7 +11,20 @@ async function getByDoctorId(doctorId) {
   return { data }
 }
 
+async function createByPool(availabilities) {
+  const queries = availabilities.map(av => {
+    const { day, from_time, to_time, doctor_id } = av;
+    const id = uuid();
+
+    return `INSERT INTO availability (id, day, from_time, to_time, user_id) VALUES ('${id}', '${day}', '${from_time}', '${to_time}', '${doctor_id}');`
+  });
+
+  await db.poolExecute(queries);
+
+}
+
 async function create(availability) {
+
   const { day, from_time, to_time, doctor_id } = availability;
   const id = uuid();
 
@@ -28,6 +41,25 @@ async function create(availability) {
   return { message, id };
 }
 
+async function updateOrCreateByPool(availabilities) {
+
+  const queries = availabilities.map(av => {
+    const { day, from_time, to_time, doctor_id } = av;
+    return `UPDATE availability SET from_time='${from_time}',to_time='${to_time}' WHERE day='${day}' and user_id='${doctor_id}';`
+  })
+
+  const results = await db.poolExecute(queries);
+
+  let message = 'Error in updating availability';
+
+  if (results.length && results[0].affectedRows) {
+    message = 'Availability updated successfully';
+  } else {
+    return createByPool(availabilities);
+  }
+
+  return { message };
+}
 async function updateOrCreate(availability) {
   const { day, from_time, to_time, doctor_id } = availability;
 
@@ -46,4 +78,4 @@ async function updateOrCreate(availability) {
   return { message };
 }
 
-module.exports = { getByDoctorId, create, updateOrCreate }
+module.exports = { getByDoctorId, create, updateOrCreate, createByPool, updateOrCreateByPool }
