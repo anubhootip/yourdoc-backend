@@ -14,6 +14,19 @@ async function getDoctors(page = 1) {
   }
 }
 
+
+async function getDoctor(userId) {
+  const row = await db.query(
+    `SELECT id, email, name, phone, dob, gender, address, latlong, specialization FROM user INNER JOIN doctor ON user.id = doctor.user_id WHERE doctor.user_id = "${userId}"`
+  );
+  const [data] = helper.emptyOrRows(row);
+
+  return {
+    data
+  }
+}
+
+
 async function approveDoctor(userId) {
 
   getEmail(userId, true);
@@ -34,8 +47,6 @@ async function approveDoctor(userId) {
 }
 
 async function rejectDoctor(userId) {
-
-  getEmail(userId, false);
   const update = await db.query(
     `DELETE FROM doctor WHERE user_id="${userId}"`
   );
@@ -54,12 +65,12 @@ async function rejectDoctor(userId) {
 
 async function getEmail(userId, bool) {
   try {
-    
-    try {
-    } catch (err) {
-      console.error(`Error sending email`, err.message);
-      next(err);
-    }
+    const mail = await db.query(
+      `SELECT name, email FROM user WHERE id="${userId}"`
+    );
+
+    return mail?.[0];
+
   } catch (err) {
     console.error(`Error while getting email from user`, err.message);
     next(err);
@@ -69,6 +80,7 @@ async function getEmail(userId, bool) {
 
 module.exports = {
   getDoctors,
+  getDoctor,
   approveDoctor,
   rejectDoctor
 }

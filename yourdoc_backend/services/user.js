@@ -4,7 +4,7 @@ const config = require('../dbconfig');
 const { v4: uuid } = require('uuid');
 
 async function getMultiple(page = 1) {
-  const offset = helper.getOffset(config.listPerPage, page);
+  const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
     `SELECT name, email FROM user LIMIT ${offset},${config.listPerPage}`
   );
@@ -20,9 +20,7 @@ async function getById(userId) {
   );
   const [data] = helper.emptyOrRows(rows);
 
-  return {
-    data: data || null
-  }
+  return { data }
 }
 
 async function getByIdNType(userId, type) {
@@ -34,15 +32,7 @@ async function getByIdNType(userId, type) {
   const rows = await db.query(userTypeQueryMap[type.toLowerCase()]);
   const [data] = helper.emptyOrRows(rows);
 
-  if (data === undefined) {
-    return {
-      data: null
-    };
-  }
-
-  return {
-    data
-  }
+  return { data }
 }
 
 async function create(user) {

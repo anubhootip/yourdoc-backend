@@ -60,10 +60,6 @@ async function create(appointment) {
 }
 
 async function deleteA(appointmentId) {
-  if (!appointmentId || isNaN(parseInt(appointmentId))) {
-    throw new Error('Invalid input');
-  }
-
   const result = await db.query(
     `DELETE FROM appointment WHERE id='${appointmentId}'`
   );
