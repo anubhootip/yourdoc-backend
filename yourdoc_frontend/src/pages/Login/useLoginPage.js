@@ -11,7 +11,7 @@ export const Fields = [
 
 export function useLoginPage(type) {
   const [loginState, setLoginState] = useState('isInit');
-  const { getPatientAccessByEmailNPassword, getDoctorAccessByEmailNPassword } = useUser();
+  const { getPatientAccessByEmailNPassword, getDoctorAccessByEmailNPassword, getAdminAccessByEmailNPassword } = useUser();
   const [, setCookie] = useCookies();
   const navigate = useNavigate();
   const { showToastFor5s } = useContext(ToastContext);
@@ -23,14 +23,20 @@ export function useLoginPage(type) {
     let response;
     if (type === 'doctor') {
       response = await getDoctorAccessByEmailNPassword(formValues.email, formValues.password);
+    } else if (type === 'admin') {
+      response = await getAdminAccessByEmailNPassword(formValues.email, formValues.password);
     } else {
       response = await getPatientAccessByEmailNPassword(formValues.email, formValues.password);
     }
     const { accessToken, message } = response;
-    if (message === 'success' || accessToken?.length > 10) {
+    if (type !== 'admin' && (message === 'success' || accessToken?.length > 10)) {
       setCookie("session", accessToken, { path: "/" });
       setLoginState('isSuccess');
       navigate(type ? '/profile/' + type : '/profile');
+    } else if (message === 'success' || accessToken?.length > 10) {
+      setCookie("session", accessToken, { path: "/" });
+      setLoginState('isSuccess');
+      navigate('/admindashboard');
     } else {
       setLoginState('isInit');
       showToastFor5s({ toastText: "Invalid Login", toastType: 'danger' });

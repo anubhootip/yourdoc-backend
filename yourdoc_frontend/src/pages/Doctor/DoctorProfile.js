@@ -4,9 +4,11 @@ import { Overlay } from "../../components/Overlay";
 import { ProfileCard } from "../../components/ProfileCard/ProfileCard";
 import { Navbar } from "../../components/nav-bar";
 import { Fields, useProfilePage } from "./useProfilePage";
+import { Modal } from "../../components/Modal/Modal";
+import { PrescriptionPage } from "../../components/PrescriptionPage/PrescriptionPage";
 
 export function DoctorProfile() {
-  const { user, listData, onSetAvailability, availState, defaultValues } = useProfilePage();
+  const { user, listData, onSetAvailability, availState, defaultValues, selectedPatient, isShowModal, onCloseModal } = useProfilePage();
   const refForm = useRef();
 
   const onFillSame = () => {
@@ -20,10 +22,11 @@ export function DoctorProfile() {
 
   return <>
     <Navbar />
-    <div className="dark:bg-slate-700 min-h-screen flex-wrap p-4">
+    <div className="dark:bg-slate-700 min-h-screen flex-wrap p-4 pt-10">
       <h2 class="mt-0 mb-2 text-4xl font-medium leading-tight dark:text-gray-200">
         Doctor Overview
       </h2>
+
       <div className="flex gap-4">
         <div className="relative min-w-[500px]">
           {!user ? <Overlay /> : null}
@@ -79,6 +82,7 @@ export function DoctorProfile() {
         </div>
 
       </div>
+      <Modal title="Patient Prescriptions" modalBodyComponent={<PrescriptionPage uploadedByUserId={user.id} patientId={selectedPatient} />} isShowModal={isShowModal} onClose={onCloseModal} />
     </div>
   </>
 }

@@ -17,8 +17,10 @@ function Home() {
     user = jwtDecode(cookie.session);
   } catch { }
   useEffect(() => {
-    if (user?.type) {
+    if (user?.type && user.type !== 'admin') {
       navigate(user.type === 'doctor' ? '/profile/doctor' : '/profile');
+    } else if (user?.type === 'admin') {
+      navigate('/admindashboard')
     }
   }, [user?.type]);
   return (

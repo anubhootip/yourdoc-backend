@@ -13,6 +13,9 @@ export function Login({ type }) {
     <Navbar />
     <section className="min-h-full">
       <div className="h-full dark:bg-gray-700">
+        <div className="flex justify-center">
+          <h1 className="dark:text-white uppercase font-bold text-2xl mt-2">{type || 'patient'} Login</h1>
+        </div>
         <div
           className="g-6 flex h-full flex-wrap items-center justify-center lg:justify-between">
           <div
@@ -63,8 +66,6 @@ export function Login({ type }) {
                   <button
                     type="submit"
                     className="inline-block rounded bg-blue-600 px-7 pt-3 pb-2.5 text-sm font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-blue-600-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-blue-600-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-blue-600-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)]"
-                    data-te-ripple-init
-                    data-te-ripple-color="light"
                     disabled={loginState === 'isLoading'}
                   >
                     Login
@@ -73,7 +74,7 @@ export function Login({ type }) {
                 <p className="mt-2 mb-0 pt-1 text-sm font-semibold">
                   Don't have an account?
                   <Link
-                    to={type ? "/signup/" + type : "/signup"}
+                    to={type === 'doctor' ? "/signup/" + type : "/signup"}
                     className="text-red-500 transition duration-150 ease-in-out hover:text-red-500-600 focus:text-red-500-600 active:text-red-500-700"
                   >Register</Link>
                 </p>

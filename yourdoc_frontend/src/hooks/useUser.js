@@ -43,6 +43,21 @@ export function useUser() {
     return { accessToken: data, message };
   }
 
+  const getAdminAccessByEmailNPassword = async (email, password) => {
+    const body = JSON.stringify({ email, password });
+
+    const { data, message } = await fetch(API_BASE_URL + '/adminlogin', {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: 'post',
+      body
+    }).then(j => j.json());
+
+    return { accessToken: data, message };
+  }
+
 
   const setUserPatient = async (user) => {
     // to send email remove no_email: true and just stringify user
@@ -72,6 +87,6 @@ export function useUser() {
 
   return {
     getUserById, getUserByIdNType, setUserPatient, setUserDoctor,
-    getPatientAccessByEmailNPassword, getDoctorAccessByEmailNPassword
+    getPatientAccessByEmailNPassword, getDoctorAccessByEmailNPassword, getAdminAccessByEmailNPassword
   }
 }

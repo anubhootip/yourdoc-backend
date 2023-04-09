@@ -1,7 +1,7 @@
 const db = require('./db');
 const helper = require('../helper');
 const config = require('../dbconfig');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { v4: uuid } = require('uuid');
 
 async function getRegistrationInfo(creds) {
@@ -10,7 +10,7 @@ async function getRegistrationInfo(creds) {
     `select * from user inner join patient on user.id = patient.user_id where user.id = '${id}'`
   );
 
-  if (!result) {
+  if (!result || result.result.rows.length == 0) {
     throw new Error("User not found");
   }
 

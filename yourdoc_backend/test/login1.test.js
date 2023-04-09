@@ -98,6 +98,86 @@ describe('patientInfo function', () => {
 
 });
 
+describe('doctorInfo function', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('returns an error message when given wrong email and password', async () => {
+    const email = 'nonexistent@example.com';
+    const password = 'wrongpassword';
+    const queryResult = [];
+
+    db.query.mockResolvedValue(queryResult);
+    helper.emptyOrRows.mockReturnValue(queryResult);
+
+    const result = await doctor.doctorInfo({ email, password });
+
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(helper.emptyOrRows).toHaveBeenCalledTimes(1);
+    expect(helper.emptyOrRows).toHaveBeenCalledWith(queryResult);
+    expect(result).toEqual({ message: 'Wrong email or password!!' });
+  });
+
+  test('returns doctor data when given correct email and password', async () => {
+    const email = 'foo@example.com';
+    const password = 'bar';
+    const creds = { email, password };
+    const data = {
+      id: 1,
+      name: 'John Doe',
+      email,
+      password: '$2b$10$123456789012345678901234567890123456789012345678901234567890',
+      user_id: 1,
+      age: 30
+    };
+    db.query.mockResolvedValue([{ ...data }]);
+
+    helper.emptyOrRows.mockReturnValue([data]);
+
+    bcrypt.compare.mockResolvedValue(true);
+
+    const result = await doctor.doctorInfo(creds);
+
+    expect(db.query).toHaveBeenCalledWith(
+      `SELECT * FROM user, doctor where email='${email}' and user_id=id and is_approved=1`
+    );
+    expect(helper.emptyOrRows).toHaveBeenCalledWith([{ ...data }]);
+    expect(bcrypt.compare).toHaveBeenCalledWith(password, data.password);
+    expect(result).toEqual({ data, message: 'success' });
+  });
+
+  test('returns an error message when given correct email but wrong password', async () => {
+    const email = 'foo@example.com';
+    const password = 'bar';
+    const creds = { email, password };
+    const data = {
+      id: 1,
+      name: 'John Doe',
+      email,
+      password: '$2b$10$123456789012345678901234567890123456789012345678901234567890',
+      user_id: 1,
+      age: 30
+    };
+
+    db.query.mockResolvedValue([{ ...data }]);
+
+    helper.emptyOrRows.mockReturnValue([data]);
+
+    bcrypt.compare.mockResolvedValue(false);
+
+    const result = await doctor.doctorInfo(creds);
+
+    expect(db.query).toHaveBeenCalledWith(
+      `SELECT * FROM user, doctor where email='${email}' and user_id=id and is_approved=1`
+    );
+    expect(helper.emptyOrRows).toHaveBeenCalledWith([{ ...data }]);
+    expect(bcrypt.compare).toHaveBeenCalledWith(password, data.password);
+    expect(result).toEqual({ message: 'Wrong email or password!!' });
+  });
+
+});
+
 
 describe('adminInfo function', () => {
 
@@ -136,7 +216,7 @@ describe('adminInfo function', () => {
 });
 
 
-describe('getById function', () => {
+describe('patient getById function', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -174,6 +254,42 @@ describe('getById function', () => {
 
   });
 
+  describe('doctor getById function', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+  
+    test('returns user data when given valid email', async () => {
+        const expectedRows = [{
+          name: 'John Doe',
+          type: 'patient',
+          email: 'johndoe@example.com',
+          is_approved: '0',
+          specialization: 'Dentist',
+          latlong: '0.000000,0.000000'
+        }];
+        db.query.mockResolvedValue(expectedRows);
+      
+        const result = await doctor.getById({ email: 'johndoe@example.com' });
+      
+        expect(db.query).toHaveBeenCalledTimes(1);
+        expect(db.query).toHaveBeenCalledWith(expect.any(String));
+        expect(result).toEqual({ result: expectedRows, message: 'User found successfully' });
+      });
+  
+      test('returns an error message when user is not found', async () => {
+        const email = 'nonexistent.user@example.com';
+        db.query.mockResolvedValueOnce([]);
+    
+        const result = await doctor.getById({ email });
+    
+        expect(db.query).toHaveBeenCalledTimes(1);
+        expect(db.query).toHaveBeenCalledWith(expect.any(String));
+        expect(result).toEqual({ result: [], message: 'User not found!' });
+      });
+  
+    });
+  
 
   describe('admin getById function', () => {
 

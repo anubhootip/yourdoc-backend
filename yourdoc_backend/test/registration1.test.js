@@ -4,7 +4,7 @@ const patient = require('../services/patientRegistration');
 const doctor = require('../services/doctorRegistration');
 const uuid = require('uuid');
 
-// Mock the dependencies
+
 jest.mock('bcrypt');
 jest.mock('../services/db');
 
@@ -70,7 +70,7 @@ describe('createUserPatient', () => {
 });
 
 
-describe('getRegistrationInfo', () => {
+describe('patient getRegistrationInfo', () => {
   const creds = { id: '123' };
 
   beforeAll(() => {
@@ -97,23 +97,36 @@ describe('getRegistrationInfo', () => {
   test('should return registration info when user is found', async () => {
     // Arrange
     const expected = {
-      name: 'John Doe',
-      dob: '1990-01-01',
-      phone: '1234567890',
-      address: '123 Main St',
-      latlong: '0,0',
-      avatar_url: 'https://example.com/avatar.jpg',
-      blood_group: 'A+'
+      result: {
+      result: {
+        rows: [
+          {
+            name: 'John Doe',
+            dob: '1990-01-01',
+            phone: '1234567890',
+            address: '123 Main St',
+            latlong: '0,0',
+            avatar_url: 'https://example.com/avatar.jpg',
+            blood_group: 'A+'
+          }
+        ]
+      }
+    }
     };
-
+  
     // Act
     const registrationInfo = await patient.getRegistrationInfo(creds);
-
+  
     // Assert
-    expect(registrationInfo.result.result.rows[0]).toEqual(expected);
+    expect(registrationInfo).toEqual(expected);
     expect(db.query).toHaveBeenCalledTimes(1);
-    expect(db.query).toHaveBeenCalledWith(`select * from user inner join patient on user.id = patient.user_id where user.id = '${creds.id}'`);
+    expect(db.query).toHaveBeenCalledWith(
+      `select * from user inner join patient on user.id = patient.user_id where user.id = '${creds.id}'`
+    );
   });
+  
+   
+  
 
   test('should throw an error when user is not found', async () => {
     // Arrange
@@ -126,4 +139,169 @@ describe('getRegistrationInfo', () => {
     expect(db.query).toHaveBeenCalledWith(`select * from user inner join patient on user.id = patient.user_id where user.id = '${creds.id}'`);
   });
 
+  test('should throw an error when db.query throws an error', async () => {
+    // Arrange
+    db.query = jest.fn().mockRejectedValue(new Error('Database error'));
+
+    // Act & Assert
+    await expect(patient.getRegistrationInfo(creds)).rejects.toThrow(new Error('Database error'));
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(`select * from user inner join patient on user.id = patient.user_id where user.id = '${creds.id}'`);
+  });
+
+  test('should throw an error when db.query returns null', async () => {
+    // Arrange
+    db.query = jest.fn().mockResolvedValue(null);
+    const expectedError = new Error('User not found');
+
+    // Act & Assert
+    await expect(patient.getRegistrationInfo(creds)).rejects.toThrow(expectedError);
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(`select * from user inner join patient on user.id = patient.user_id where user.id = '${creds.id}'`);
+  });
+});
+
+describe('fillRegisterInfo', () => {
+  test('should create a new doctor and return success message', async () => {
+    // Arrange
+    const creds = {
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: 'password',
+      specialization: 'Cardiology',
+      is_approved: 1,
+    };
+    const userId = 'cd9a66f9-c6a3-4d62-8744-e66114547b94';
+    uuid.v4.mockReturnValueOnce(userId);
+    bcrypt.hash.mockResolvedValueOnce('hashedPassword');
+    db.query.mockResolvedValueOnce({ affectedRows: 1 });
+    db.query.mockResolvedValueOnce({ affectedRows: 1 });
+
+    // Act
+    const result = await doctor.fillRegisterInfo(creds);
+
+    // Assert
+    expect(result).toEqual({ message: 'Doctor added successfully!!', id: userId, email: creds.email });
+    expect(uuid.v4).toHaveBeenCalledTimes(1);
+    expect(bcrypt.hash).toHaveBeenCalledWith(creds.password, 7);
+    expect(db.query).toHaveBeenCalledTimes(2);
+    expect(db.query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO user'));
+    expect(db.query).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO doctor'));
+  });
+
+  test('should return an error message if there is an error creating the doctor', async () => {
+    // Arrange
+    const creds = {
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: 'password',
+      specialization: 'Cardiology',
+      is_approved: 1,
+    };
+    const errorMessage = 'Error creating doctor';
+    jest.spyOn(bcrypt, 'hash').mockRejectedValue(new Error(errorMessage));
+    jest.spyOn(db, 'query').mockRejectedValue(new Error(errorMessage));
+
+    // Act and Assert
+    await expect(doctor.fillRegisterInfo(creds)).rejects.toThrow(errorMessage);
+
+    // Verify that the mocked functions were called with the correct arguments
+    expect(bcrypt.hash).toHaveBeenCalledWith(creds.password, 7);
+    expect(db.query).toHaveBeenCalledTimes(2);
+  });
+  
+});
+
+describe('doctor getRegistrationInfo', () => {
+  const creds = { id: '123' };
+
+  beforeAll(() => {
+    // Mock the db.query method to return a user object
+    db.query = jest.fn().mockResolvedValue({
+      result: {
+        rows: [{
+          name: 'John Doe',
+          email: 'johndoe@example.com',
+          password: 'password',
+          specialization: 'Cardiology',
+          is_approved: 1,
+        }]
+      }
+    });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should return registration info when user is found', async () => {
+    // Arrange
+    const expected = {
+      result: {
+      result: {
+        rows: [
+          {
+            name: 'John Doe',
+            email: 'johndoe@example.com',
+            password: 'password',
+            specialization: 'Cardiology',
+            is_approved: 1,
+          }
+        ]
+      }
+    }
+    };
+  
+    // Act
+    const registrationInfo = await doctor.getRegistrationInfo(creds);
+  
+    // Assert
+    expect(registrationInfo).toEqual(expected);
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(
+      `select * from user inner join doctor on user.id = doctor.user_id where user.id = '${creds.id}'`
+    );
+  });
+  
+   
+  
+
+  test('should throw an error when user is not found', async () => {
+    // Arrange
+    db.query = jest.fn().mockResolvedValue({ result: { rows: [] } });
+    const expectedError = new Error('User not found');
+  
+    // Act & Assert
+    try {
+      await doctor.getRegistrationInfo(creds);
+    } catch (error) {
+      console.log(error.message);
+      expect(error).toMatchObject(expectedError);
+    }
+  
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(`select * from user inner join doctor on user.id = doctor.user_id where user.id = '${creds.id}'`);
+  });
+  
+
+  test('should throw an error when db.query throws an error', async () => {
+    // Arrange
+    db.query = jest.fn().mockRejectedValue(new Error('Database error'));
+
+    // Act & Assert
+    await expect(doctor.getRegistrationInfo(creds)).rejects.toThrow(new Error('Database error'));
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(`select * from user inner join doctor on user.id = doctor.user_id where user.id = '${creds.id}'`);
+  });
+
+  test('should throw an error when db.query returns null', async () => {
+    // Arrange
+    db.query = jest.fn().mockResolvedValue(null);
+    const expectedError = new Error('User not found');
+
+    // Act & Assert
+    await expect(doctor.getRegistrationInfo(creds)).rejects.toThrow(expectedError);
+    expect(db.query).toHaveBeenCalledTimes(1);
+    expect(db.query).toHaveBeenCalledWith(`select * from user inner join doctor on user.id = doctor.user_id where user.id = '${creds.id}'`);
+  });
 });

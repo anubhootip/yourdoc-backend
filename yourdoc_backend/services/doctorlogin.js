@@ -1,7 +1,7 @@
 const db = require('./db');
 const helper = require('../helper');
 const config = require('../dbconfig');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 async function getById(creds) {
   const { email, password } = creds;
@@ -10,11 +10,13 @@ async function getById(creds) {
     FROM user inner join doctor on user.id = doctor.user_id where user.email='${email}' and user.password='${password}'`
   );
 
-  if (!result) {
-    throw new Error("User not found");
+  let message = 'User not found!';
+
+  if (result && result.length > 0) {
+    message = 'User found successfully';
   }
 
-  return { result }
+  return { result, message }
 }
 
 async function doctorInfo(creds) {

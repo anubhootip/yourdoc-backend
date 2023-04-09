@@ -34,6 +34,7 @@ export const DoctorFields = [
   { type: 'email', placeholder: 'Email address*', id: 'email', isRequired: true },
   { type: 'password', placeholder: 'Password*', id: 'password', isRequired: true },
   { type: 'text', placeholder: 'Specialization*', id: 'specialization', isRequired: true },
+  { type: 'text', placeholder: 'Phone*', id: 'phone', isRequired: true },
   { type: 'date', placeholder: 'Date Of Birth', id: 'dob' },
   { type: 'text', placeholder: 'Address', id: 'address' },
   {
