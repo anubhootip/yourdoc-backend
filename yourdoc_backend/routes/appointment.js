@@ -19,9 +19,9 @@ router.get('/', async function (req, res, next) {
 
 router.post('/', async function (req, res, next) {
   try {
-    console.log(req.body);
+    const { no_email = true } = req.body;
     const appointmentResponse = await appointment.create(req.body);
-    if(appointmentResponse != null && !no_email){
+    if (appointmentResponse != null && !no_email) {
       client.send({
         to: {
           email: userPatientDbResponse.email
