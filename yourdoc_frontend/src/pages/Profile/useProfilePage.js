@@ -25,10 +25,10 @@ export function useProfilePage() {
   }, [user]);
 
   useEffect(() => {
-    a();
+    getAppointments();
   }, [])
 
-  const a = async () => {
+  const getAppointments = async () => {
     const patientAppointments = await getAppointmentsByPatientId(user.id);
     const listData = patientAppointments.map(pa => {
       const rightText = DateTime.fromISO(pa.datetime).toFormat('dd-LL-yyyy hh:mm a')
