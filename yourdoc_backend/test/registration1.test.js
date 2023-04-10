@@ -1,11 +1,11 @@
 const db = require('../services/db');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const patient = require('../services/patientRegistration');
 const doctor = require('../services/doctorRegistration');
 const uuid = require('uuid');
 
 // Mock the dependencies
-jest.mock('bcrypt');
+jest.mock('bcryptjs');
 jest.mock('../services/db');
 
 jest.mock('uuid', () => {
