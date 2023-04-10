@@ -20,7 +20,7 @@ async function getById(userId) {
   );
   const [data] = helper.emptyOrRows(rows);
 
-  return { data }
+  return { data: data || null }
 }
 
 async function getByIdNType(userId, type) {
@@ -31,6 +31,10 @@ async function getByIdNType(userId, type) {
   }
   const rows = await db.query(userTypeQueryMap[type.toLowerCase()]);
   const [data] = helper.emptyOrRows(rows);
+
+  if(data === undefined){
+    return { data: null }
+  }
 
   return { data }
 }
