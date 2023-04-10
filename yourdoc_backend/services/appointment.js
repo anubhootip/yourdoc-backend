@@ -60,8 +60,10 @@ async function create(appointment) {
 }
 
 async function deleteA(appointmentId) {
-
-  const result = await db.query(`DELETE FROM appointment WHERE id='${appointmentId}'`);
+  const result = await db.query(
+    `DELETE FROM appointment WHERE id= ?`,
+    [appointmentId]
+  );
 
   let message = 'Error in deleting appointment';
 
