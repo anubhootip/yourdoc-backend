@@ -1,10 +1,7 @@
 const helper = require('../helper');
-const config = require('../dbconfig');
 const db = require('./db');
-const emailsender = require("./Email");
 
 async function getDoctors(page = 1) {
-  const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
     'SELECT id, email, name, phone, dob, gender, address, latlong FROM user INNER JOIN doctor ON user.id = doctor.user_id WHERE doctor.is_approved = false;'
   );
@@ -17,6 +14,7 @@ async function getDoctors(page = 1) {
   }
 }
 
+
 async function getDoctor(userId) {
   const row = await db.query(
     `SELECT id, email, name, phone, dob, gender, address, latlong, specialization FROM user INNER JOIN doctor ON user.id = doctor.user_id WHERE doctor.user_id = "${userId}"`
@@ -27,6 +25,7 @@ async function getDoctor(userId) {
     data
   }
 }
+
 
 async function approveDoctor(userId) {
 
@@ -48,8 +47,6 @@ async function approveDoctor(userId) {
 }
 
 async function rejectDoctor(userId) {
-
-  getEmail(userId, false);
   const update = await db.query(
     `DELETE FROM doctor WHERE user_id="${userId}"`
   );
@@ -72,14 +69,8 @@ async function getEmail(userId, bool) {
       `SELECT name, email FROM user WHERE id="${userId}"`
     );
 
-    const { name, email } = mail[0];
+    return mail?.[0];
 
-    try {
-      // emailsender.sendEmail(name, email, bool);
-    } catch (err) {
-      console.error(`Error sending email`, err.message);
-      next(err);
-    }
   } catch (err) {
     console.error(`Error while getting email from user`, err.message);
     next(err);
@@ -89,7 +80,7 @@ async function getEmail(userId, bool) {
 
 module.exports = {
   getDoctors,
+  getDoctor,
   approveDoctor,
-  rejectDoctor,
-  getDoctor
+  rejectDoctor
 }

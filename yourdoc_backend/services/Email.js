@@ -1,12 +1,11 @@
 const express = require("express");
-// const nodemailer = require("nodemailer");
 
 
 const myemail = process.env.SENDER_EMAIL;
 const mypassword = process.env.APPLICATION_PASSWORD;
 
 exports.sendEmail = function (name, recipient_email, flag) {
-  var transporter = nodemailer.createTransport({
+  let transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
       user: myemail,
@@ -16,7 +15,7 @@ exports.sendEmail = function (name, recipient_email, flag) {
 
   let mail_configs = {};
 
-  if (flag == true) {
+  if (flag) {
     mail_configs = {
       from: myemail,
       to: recipient_email,

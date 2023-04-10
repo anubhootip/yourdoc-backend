@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const appointment = require('../services/appointment');
 
 router.get('/', async function (req, res, next) {
@@ -19,8 +19,21 @@ router.get('/', async function (req, res, next) {
 
 router.post('/', async function (req, res, next) {
   try {
-    console.log(req.body);
-    res.json(await appointment.create(req.body));
+    const { no_email = true } = req.body;
+    const appointmentResponse = await appointment.create(req.body);
+    if (appointmentResponse != null && !no_email) {
+      client.send({
+        to: {
+          email: userPatientDbResponse.email
+        },
+        from: {
+          email: process.env.MY_EMAIL
+        },
+        templateId: 'd-27f4de48d21447ff836c5df2e76724a7'
+      }).then(() => {
+        console.log("Email was sent");
+      });
+    }
   } catch (err) {
     console.error(`Error while creating appointment`, err.message);
     next(err);
