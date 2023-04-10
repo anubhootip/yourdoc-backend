@@ -4,14 +4,10 @@ build:
   stage: build
   script:
     - rm -rf ./frontend_build.zip
-    - npm install
     - cd yourdoc_frontend
     - rm -rf build
-    - npm install
-    - npm run build
     - cd ..
     - cd yourdoc_backend
-    - npm install
   environment: production
   only:
     - main
@@ -20,6 +16,7 @@ test:
   stage: test
   script:
     - cd yourdoc_backend
+    - npm install
     - npm run test
   only:
     - main
