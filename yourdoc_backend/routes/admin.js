@@ -27,6 +27,7 @@ router.put('/:id', async function (req, res, next) {
     console.log(req.body);
     const { no_email = true } = req.body;
     const approved = await admin.approveDoctor(req.params.id);
+    res.json(approved);
     if (approved != null && !no_email) {
       client.send({
         to: {
@@ -53,6 +54,7 @@ router.delete('/:id', async function (req, res, next) {
     console.log(req.body);
     const { no_email = true } = req.body;
     const rejected = await admin.rejectDoctor(req.params.id);
+    res.json(rejected);
     if (rejected != null && !no_email) {
       client.send({
         to: {

@@ -29,7 +29,6 @@ async function getDoctor(userId) {
 
 async function approveDoctor(userId) {
 
-  getEmail(userId, true);
   const update = await db.query(
     `UPDATE doctor SET is_approved = true WHERE user_id="${userId}"`
   );
