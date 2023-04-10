@@ -1,7 +1,7 @@
 const db = require('./db');
 const helper = require('../helper');
 const config = require('../dbconfig');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
 async function getById(creds) {
   const { email, password } = creds;

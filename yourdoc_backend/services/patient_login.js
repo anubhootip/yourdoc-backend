@@ -1,7 +1,7 @@
 const db = require('./db');
 const helper = require('../helper');
 const config = require('../dbconfig');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
 async function getById(creds) {
   const { email } = creds;
@@ -14,7 +14,7 @@ async function getById(creds) {
   if (result && result.length > 0) {
     message = 'User found successfully';
   }
-  return { result, message };
+  return { result, message }
 }
 
 async function patientInfo(creds) {
