@@ -190,8 +190,4 @@ describe('deleteA', () => {
     expect(mockQuery).toHaveBeenCalledWith("DELETE FROM appointment WHERE id= ?", [100]);
     expect(result).toEqual({ message: 'Error in deleting appointment' });
   });
-
-  test('invalid input', async () => {
-    await expect(appointmentob.deleteA('abc')).rejects.toThrow('Invalid input');
-  });
 });

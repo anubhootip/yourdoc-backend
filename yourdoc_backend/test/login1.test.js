@@ -1,12 +1,12 @@
 const db = require('../services/db');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const helper = require('../helper');
 const patient = require('../services/patient_login');
 const doctor = require('../services/doctorlogin');
 const admin = require('../services/adminlogin');
 
 
-jest.mock('bcrypt', () => ({
+jest.mock('bcryptjs', () => ({
     compare: jest.fn()
   }));
   
